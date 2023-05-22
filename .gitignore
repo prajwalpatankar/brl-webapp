@@ -3,7 +3,8 @@
 # dependencies
 /env
 /node_modules
-/.pnp
+/client/node_modules
+/.pnpgit 
 .pnp.js
 
 # testing
