@@ -89,5 +89,3 @@ That's it! You have successfully set up the React and Django project on your loc
 - For deployment and production use, refer to the respective documentation for React and Django to properly configure and optimize your project.
 
 For any further assistance or questions, please feel free to reach out.
-
-Happy coding!
