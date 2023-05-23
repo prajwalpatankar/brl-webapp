@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "BME App",
+  "name": "Demonstrating BME labcodes",
   "icons": [
     {
       "src": "favicon.ico",
