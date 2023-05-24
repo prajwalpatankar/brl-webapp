@@ -5,16 +5,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Importing components
+import Sidebar from './components/sidebar/Sidebar'
 import Home from './components/home/Home';
 import LogIn from './components/auth/LogIn';
 import SignUp from './components/auth/SignUp';
 import VectorOverlay from './components/vectorOverlay/VectorOverlay';
 
+
 function App() {
   return (
     <BrowserRouter>
+      <Sidebar />
       <Routes>
-        {/* Mention all Routes Here */}
+        {/* Mention all Routes Here */  }
         
         {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
         <Route exact path="/" element={<VectorOverlay />} />
