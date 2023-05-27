@@ -1,6 +1,8 @@
 .vector-overlay {
     padding-top: 2%;
     text-align: center;
+    margin-left: 15%;
+    margin-right: 15%;
 }
 
 .form-box {
@@ -17,9 +19,6 @@
     grid-auto-rows: auto;
 }
 
-.upload-button {
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-bottom: 5px;
-    margin-right: 5px;
+.upload-btn {
+    margin-top: 2%;
 }

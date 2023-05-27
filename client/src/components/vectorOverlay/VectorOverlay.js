@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { InboxOutlined } from '@ant-design/icons';
 import { message, Upload } from 'antd';
-
-
-import './VectorOverlay.css';
 import { Container, Button } from 'react-bootstrap';
+
+import Uploader from './Uploader';
+import './VectorOverlay.css';
 
 
 
@@ -90,7 +90,7 @@ const VectorOverlay = () => {
         <div className='vector-overlay'>
             <h3>Vector Overlay</h3>
             <p>Some Description about the vector overlay project Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed in lectus ipsum. In et nunc auctor, placerat turpis sed, posuere mi. Ut quis nulla in mi accumsan tempus eget ac mi. Ut felis justo, eleifend vitae est et, mollis consectetur augue. Proin bibendum velit lectus, dignissim consectetur magna viverra blandit. Morbi pharetra elit tempus nisi blandit luctus. Pellentesque euismod consequat velit id pellentesque. Donec tincidunt tellus et arcu malesuada vulputate. Pellentesque efficitur tellus non tortor rutrum, non eleifend tellus malesuada. Praesent magna nibh, sollicitudin in dignissim non, vehicula at est. Donec rutrum, mi vitae gravida interdum, lacus ex rhoncus massa, et interdum dolor arcu ultrices felis. Suspendisse tempus elit a nibh posuere vestibulum. Nunc fermentum vitae nisi id dapibus. Nam nec commodo dolor. Nulla id volutpat </p>
-            <Container className='form-container'>
+            {/* <Container className='form-container'>
                 <form>
                     <Dragger {...props}>
                         <p className="ant-upload-drag-icon">
@@ -102,11 +102,12 @@ const VectorOverlay = () => {
                         </p>
                     </Dragger>
 
-                    <Button type="primary" onClick={(event) => handleUpload(event)} >
+                    <Button type="primary" className='upload-btn' onClick={(event) => handleUpload(event)} >
                         Upload Video
                     </Button>
                 </form>
-            </Container>
+            </Container> */}
+            <Uploader />
 
 
         </div>
