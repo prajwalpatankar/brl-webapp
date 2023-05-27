@@ -16,16 +16,18 @@ function App() {
   return (
     <BrowserRouter>
       <Sidebar />
-      <Routes>
-        {/* Mention all Routes Here */  }
-        
-        {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
-        <Route exact path="/" element={<VectorOverlay />} />
-        <Route exact path="/home" element={<Home />} />
+      <div className='content'>
+        <Routes>
+          {/* Mention all Routes Here */}
 
-        <Route exact path="/login" element={<LogIn />} />
-        <Route exact path="/signup" element={<SignUp />} />
-      </Routes>
+          {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
+          <Route exact path="/vectorOverlay" element={<VectorOverlay />} />
+          <Route exact path="/" element={<Home />} />
+
+          <Route exact path="/login" element={<LogIn />} />
+          <Route exact path="/signup" element={<SignUp />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }

@@ -1,0 +1,25 @@
+.vector-overlay {
+    padding-top: 2%;
+    text-align: center;
+}
+
+.form-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-inner {
+    flex-wrap:wrap-reverse ;
+}
+
+.upload {
+    grid-auto-rows: auto;
+}
+
+.upload-button {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+}

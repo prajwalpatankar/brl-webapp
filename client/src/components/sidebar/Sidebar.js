@@ -6,7 +6,7 @@ import './Sidebar.css'
 
 const Sidebar = () => {
 
-    const [activeTab, setActiveTab] = useState('vectorOverlay');
+    const [activeTab, setActiveTab] = useState('home');
 
     const handleTabChange = ( tab ) => {
         setActiveTab(tab);
@@ -17,6 +17,7 @@ const Sidebar = () => {
         <div>
             <Container fluid='true'>
                 <div className="sidebar">
+                    <Link to="/" ><button onClick={() => handleTabChange('home')} className={`sidebar-btn ${activeTab === 'home' ? 'sidebar-link-active' : ''}`} >Home</button></Link>
                     <Link to="/vectorOverlay" ><button onClick={() => handleTabChange('vectorOverlay')} className={`sidebar-btn ${activeTab === 'vectorOverlay' ? 'sidebar-link-active' : ''}`}>VectorOverlay</button></Link>
                     <Link to="/subproject1" ><button onClick={() => handleTabChange('subproject1')} className={`sidebar-btn ${activeTab === 'subproject1' ? 'sidebar-link-active' : ''}`} >Project1</button></Link>
                     <Link to="/subproject2" ><button onClick={() => handleTabChange('subproject2')} className={`sidebar-btn ${activeTab === 'subproject2' ? 'sidebar-link-active' : ''}`} >Project2</button></Link>
