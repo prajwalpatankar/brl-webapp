@@ -14,21 +14,23 @@ import VectorOverlay from './components/vectorOverlay/VectorOverlay';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Sidebar />
-      <div className='content'>
-        <Routes>
-          {/* Mention all Routes Here */}
+    <div className='App'>
+      <BrowserRouter>
+        <Sidebar />
+        <div className='content'>
+          <Routes>
+            {/* Mention all Routes Here */}
 
-          {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
-          <Route exact path="/vectorOverlay" element={<VectorOverlay />} />
-          <Route exact path="/" element={<Home />} />
+            {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
+            <Route exact path="/vectorOverlay" element={<VectorOverlay />} />
+            <Route exact path="/" element={<Home />} />
 
-          <Route exact path="/login" element={<LogIn />} />
-          <Route exact path="/signup" element={<SignUp />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+            <Route exact path="/login" element={<LogIn />} />
+            <Route exact path="/signup" element={<SignUp />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </div>
   );
 }
 

@@ -5,7 +5,6 @@ const VideoOutput = () => {
 
     const outputVideoUrl = "assets/video_input.mp4";
 
-
     return (
         <div className='video-container'>
             <video width="640" height="360" autoPlay muted loop>
