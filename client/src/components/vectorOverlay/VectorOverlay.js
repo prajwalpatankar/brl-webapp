@@ -6,6 +6,7 @@ import { Container, Button } from 'react-bootstrap';
 
 import Uploader from './Uploader';
 import './VectorOverlay.css';
+import VideoPlayer from './VideoPlayer';
 
 
 
@@ -29,49 +30,6 @@ const VectorOverlay = () => {
     };
 
 
-
-    // const props = {
-    //     name: 'file',
-    //     multiple: true,
-    //     action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-    //     onChange(info) {
-    //       const { status } = info.file;
-    //       if (status !== 'uploading') {
-    //         console.log(info.file, info.fileList);
-    //       }
-    //       if (status === 'done') {
-    //         message.success(`${info.file.name} file uploaded successfully.`);
-    //       } else if (status === 'error') {
-    //         message.error(`${info.file.name} file upload failed.`);
-    //       }
-    //     },
-    //     onDrop(e) {
-    //       console.log('Dropped files', e.dataTransfer.files);
-    //     },
-    //   };
-
-
-    // const props = {
-    //     name: 'file',
-    //     action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-    //     headers: {
-    //       authorization: 'authorization-text',
-    //     },
-    //     onChange(info) {
-    //       if (info.file.status !== 'uploading') {
-    //         console.log(info.file, info.fileList);
-    //       }
-    //       if (info.file.status === 'done') {
-    //         message.success(`${info.file.name} file uploaded successfully`);
-    //       } else if (info.file.status === 'error') {
-    //         message.error(`${info.file.name} file upload failed.`);
-    //       }
-    //     },
-    //   };
-
-
-
-
     const props = {
         onRemove: (file) => {
             const index = fileList.indexOf(file);
@@ -88,25 +46,12 @@ const VectorOverlay = () => {
 
     return (
         <div className='vector-overlay'>
-            <h3>Vector Overlay</h3>
-            <p>Some Description about the vector overlay project Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed in lectus ipsum. In et nunc auctor, placerat turpis sed, posuere mi. Ut quis nulla in mi accumsan tempus eget ac mi. Ut felis justo, eleifend vitae est et, mollis consectetur augue. Proin bibendum velit lectus, dignissim consectetur magna viverra blandit. Morbi pharetra elit tempus nisi blandit luctus. Pellentesque euismod consequat velit id pellentesque. Donec tincidunt tellus et arcu malesuada vulputate. Pellentesque efficitur tellus non tortor rutrum, non eleifend tellus malesuada. Praesent magna nibh, sollicitudin in dignissim non, vehicula at est. Donec rutrum, mi vitae gravida interdum, lacus ex rhoncus massa, et interdum dolor arcu ultrices felis. Suspendisse tempus elit a nibh posuere vestibulum. Nunc fermentum vitae nisi id dapibus. Nam nec commodo dolor. Nulla id volutpat </p>
-            {/* <Container className='form-container'>
-                <form>
-                    <Dragger {...props}>
-                        <p className="ant-upload-drag-icon">
-                            <InboxOutlined />
-                        </p>
-                        <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                        <p className="ant-upload-hint">
-                            Upload you video here to get a vector overlay on your video.
-                        </p>
-                    </Dragger>
-
-                    <Button type="primary" className='upload-btn' onClick={(event) => handleUpload(event)} >
-                        Upload Video
-                    </Button>
-                </form>
-            </Container> */}
+            <h3 className='page-title'>Vector Overlay</h3>
+            <div className='project-description-container'>
+                <p className='project-description-p1'>Some Description about the vector overlay project Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed in lectus ipsum. In et nunc auctor, placerat turpis sed, posuere mi. Ut quis nulla in mi accumsan tempus eget ac mi. Ut felis justo, eleifend vitm. Nunc fermentum vitae nisi id dapibus. Nam nec commodo dolor. Nulla id volutpat </p>
+                <p className='project-description-p2'>ae est et, mollis consectetur augue. Proin bibendum velit lectus, dignissim consectetur magna viverra blandit. Morbi pharetra elit tempus nisi blandit luctus. Pellentesque euismod consequat velit id pellentesque. Donec tincidunt tellus et arcu malesuada vulputate. Pellentesque efficitur tellus non tortor rutrum, non eleifend tellus malesuada. Praesent magna nibh, sollicitudin in dignissim non, vehicula at est. </p>
+            </div>
+            <VideoPlayer />
             <Uploader />
 
 
