@@ -1,25 +1,38 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-
 import Uploader from './Uploader';
 import './VectorOverlay.css';
 import VideoPlayer from './VideoPlayer';
+import Navbar from '../navbar/Navbar';
+import { message } from 'antd';
 
 
 
 
 const VectorOverlay = () => {
 
+    // Constants
+    const navigate = useNavigate();
+
+    // State to handle visibilty of sections
     const [descriptionVisible, setDescriptionVisible] = useState(true);
 
     const handleTryButtonClick = () => {
-        window.scrollTo({ top: 0, behavior: "instant" });
-        setDescriptionVisible(!descriptionVisible);
+        if (localStorage.getItem('token') === '') {
+            message.warning('Please create an account to use Vector Overlay')
+            navigate('/login')
+
+        } else {
+            window.scrollTo({ top: 0, behavior: "instant" });
+            setDescriptionVisible(!descriptionVisible);
+        }
     }
 
     return (
         <div className='vector-overlay'>
+            <Navbar />
             <h3 className='page-title' >Vector Overlay</h3>
             {descriptionVisible ?
                 <div>
