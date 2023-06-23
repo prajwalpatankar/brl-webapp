@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'vectoroverlay',
+    'usermanager',
 ]
 
 # REST_FRAMEWORK = {
@@ -194,9 +195,9 @@ DJOSER = {
     # 'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     # 'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['http://localhost:8000/google', 'http://localhost:8000/facebook'],
     'SERIALIZERS': {
-        'user_create': 'vectoroverlay.serializers.UserCreateSerializer',
-        'user': 'vectoroverlay.serializers.UserCreateSerializer',
-        'current_user': 'vectoroverlay.serializers.UserCreateSerializer',
+        'user_create': 'usermanager.serializers.UserCreateSerializer',
+        'user': 'usermanager.serializers.UserCreateSerializer',
+        'current_user': 'usermanager.serializers.UserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     }
 }
@@ -217,4 +218,4 @@ DJOSER = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'vectoroverlay.UserAccount'
+AUTH_USER_MODEL = 'usermanager.UserAccount'
