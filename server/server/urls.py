@@ -17,12 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-
+from vectoroverlay.views import DataUploader_Viweset
 
 urlpatterns = [
+    # admin panel
     path('admin/', admin.site.urls),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
-    path('auth/', include('djoser.social.urls')),
+    # auth routes
+    path('api/v1/auth/', include('djoser.urls')),
+    path('api/v1/auth/', include('djoser.urls.jwt')),
+    path('api/v1/auth/', include('djoser.social.urls')),
+    # vector overlay routes
+    path('api/v1/data_uploader/', DataUploader_Viweset.as_view({'get': 'list', 'post': 'create'}), name='data_uploader_crud'),
+    # defaulr drf routes
     path('api-auth/', include('rest_framework.urls'))
 ]
