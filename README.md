@@ -83,7 +83,7 @@ Please follow the steps below to set up the project:
 That's it! You have successfully set up the React and Django project on your local environment. Feel free to explore and modify the project according to your requirements.
 
 ## Additional Notes
-
+- Please follow these [guidelines](/docs/README.md) while commiting changes to the repository
 - If you encounter any issues during the setup process, please ensure that you have met all the prerequisites and followed the instructions accurately.
 - Make sure to configure the backend API endpoints in the React project to match your local setup if needed.
 - For deployment and production use, refer to the respective documentation for React and Django to properly configure and optimize your project.
