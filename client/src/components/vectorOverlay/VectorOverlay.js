@@ -14,6 +14,7 @@ const VectorOverlay = () => {
     const [descriptionVisible, setDescriptionVisible] = useState(true);
 
     const handleTryButtonClick = () => {
+        window.scrollTo({ top: 0, behavior: "instant" });
         setDescriptionVisible(!descriptionVisible);
     }
 
@@ -35,6 +36,7 @@ const VectorOverlay = () => {
                     <Uploader />
                     <br /><br /><br />
                     <Button onClick={handleTryButtonClick}>Go Back</Button>
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
                 </div>
             }
         </div>
