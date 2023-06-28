@@ -33,7 +33,7 @@ const LogIn = () => {
     const handleFormSubmit = (event) => {
         event.preventDefault();
         console.log(formdata);
-        axios.post(process.env.REACT_APP_SERVER_URL.concat("auth/jwt/create/"), formdata)
+        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/auth/jwt/create/"), formdata)
             .then((response,request) => {
                 setUserToken(response.data.access);
                 localStorage.setItem('token', response.data.access);

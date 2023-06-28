@@ -18,7 +18,7 @@ const Navbar = () => {
         if (userToken !== "") {
             setIsLoggedIn(true)
         }
-        axios.post(process.env.REACT_APP_SERVER_URL.concat("auth/jwt/verify/"), { token: localStorage.getItem('token') })
+        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/auth/jwt/verify/"), { token: localStorage.getItem('token') })
             .then(() => {
                 setIsLoggedIn(true)
             })

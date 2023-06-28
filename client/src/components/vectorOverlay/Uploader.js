@@ -17,7 +17,7 @@ const Uploader = () => {
 
     const navigate = useNavigate();
 
-    const { userToken } = useContext(UserContext);
+    const { userToken, setUserToken, userDetails, setUserDetails } = useContext(UserContext);
 
     // --------------------------------------------------------------------
     // States
@@ -61,21 +61,26 @@ const Uploader = () => {
         if (localStorage.getItem('token') === '') {
             navigate('/login')
         } else {
-            axios.post(process.env.REACT_APP_SERVER_URL.concat("auth/jwt/verify/"), { token: localStorage.getItem('token') })
-                .then(() => {
+            setUserToken(localStorage.getItem('token'))
+            axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/auth/jwt/verify/"), { token: localStorage.getItem('token') })
+                .then((res, _) => {
                     //valid token
+                    console.log("Token Verification: ", res.status)
                     setShowSpinner(false);
-                    axios.get(process.env.REACT_APP_SERVER_URL.concat("auth/users/me/"), {
-                        headers: {
-                            Authorization: `JWT ${userToken}`,
-                          },
-                    })
-                    .then((response,request) => {
-                        console.log(response)
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                    })
+                    if (userDetails.id === "") {
+                        axios.get(process.env.REACT_APP_SERVER_URL.concat("api/v1/auth/users/me/"), {
+                            headers: {
+                                Authorization: `JWT ${localStorage.getItem('token')}`,
+                            },
+                        })
+                            .then((response, request) => {
+                                setUserDetails(response.data)
+                                setRequestData({ ...requestData, userID: response.data.id })
+                            })
+                            .catch((error) => {
+                                console.log(error)
+                            })
+                    }
                 })
                 .catch((error) => {
                     console.log(error)
@@ -87,41 +92,45 @@ const Uploader = () => {
     // --------------------------------------------------------------------
     // Methods
 
+    const handleFileChange = (event) => {
+        setRequestData({...requestData, [event.target.name]: event.target.files[0]})
+    }
+
     // Handle video file change
-    const videoFile = {
-        onRemove: (file) => {
-            const index = fileListVideo.indexOf(file);
-            const newFileList = fileListVideo.slice();
-            newFileList.splice(index, 1);
-            setFileListVideo(newFileList);
-            setRequestData({ ...requestData, videoFile: newFileList });
-            console.log(requestData)
-        },
-        beforeUpload: (file) => {
-            setFileListVideo([...fileListVideo, file]);
-            setRequestData({ ...requestData, videoFile: [...fileListText, file] });
-            return false;
-        },
-        fileListVideo,
-    };
+    // const videoFile = {
+    //     onRemove: (file) => {
+    //         const index = fileListVideo.indexOf(file);
+    //         const newFileList = fileListVideo.slice();
+    //         newFileList.splice(index, 1);
+    //         setFileListVideo(newFileList);
+    //         setRequestData({ ...requestData, videoFile: newFileList });
+    //         console.log(requestData)
+    //     },
+    //     beforeUpload: (file) => {
+    //         setFileListVideo([...fileListVideo, file]);
+    //         setRequestData({ ...requestData, videoFile: [...fileListText, file] });
+    //         return false;
+    //     },
+    //     fileListVideo,
+    // };
 
     // Handle text file change
-    const textFile = {
-        onRemove: (file) => {
-            const index = fileListText.indexOf(file);
-            const newFileList = fileListText.slice();
-            newFileList.splice(index, 1);
-            setFileListText(newFileList);
-            setRequestData({ ...requestData, textFile: newFileList });
-            console.log(requestData)
-        },
-        beforeUpload: (file) => {
-            setFileListText([...fileListText, file]);
-            setRequestData({ ...requestData, textFile: [...fileListText, file] });
-            return false;
-        },
-        fileListText,
-    };
+    // const textFile = {
+    //     onRemove: (file) => {
+    //         const index = fileListText.indexOf(file);
+    //         const newFileList = fileListText.slice();
+    //         newFileList.splice(index, 1);
+    //         setFileListText(newFileList);
+    //         setRequestData({ ...requestData, textFile: newFileList });
+    //         console.log(requestData)
+    //     },
+    //     beforeUpload: (file) => {
+    //         setFileListText([...fileListText, file]);
+    //         setRequestData({ ...requestData, textFile: [...fileListText, file] });
+    //         return false;
+    //     },
+    //     fileListText,
+    // };
 
     // Add dynamic Row to Force Plate List
     const addForcePlate = () => {
@@ -157,7 +166,8 @@ const Uploader = () => {
 
     // Submit Form and Send request
     const handleUpload = (e) => {
-        // e.preventDefault();
+        e.preventDefault();
+
         // const formData = new FormData();
         // fileListVideo.forEach((file) => {
         //     formData.append("files[]", file);
@@ -169,18 +179,31 @@ const Uploader = () => {
         // // Send Request here
         console.log(requestData);
 
-        // setRequestData({
-        //     userID: "",
-        //     videoFile: [],
-        //     textFile: [],
-        //     samplingRate: "",
-        //     bodyWeightPerMeter: "",
-        //     forcePlateNames: [],
-        //     lengthOfPlate: "",
-        //     widthOfPlate: "",
-        //     heightOfPlate: "",
-        // })
-        setOutputVisibility(true);
+        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData , {
+            headers: {
+                Authorization: `JWT ${localStorage.getItem('token')}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+            .then((response, _) => {
+                console.log(response);
+                setRequestData({
+                    ...requestData,
+                    videoFile: [],
+                    textFile: [],
+                    samplingRate: "",
+                    bodyWeightPerMeter: "",
+                    forcePlateNames: [],
+                    lengthOfPlate: "",
+                    widthOfPlate: "",
+                    heightOfPlate: "",
+                })
+                setForcePlateList([""]);
+                setOutputVisibility(true);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
     };
 
     return (
@@ -189,10 +212,10 @@ const Uploader = () => {
                 <div>
                     <Container className="form-container text-left">
                         {/* Container to pack video data into a request */}
-                        <form>
+                        <form enctype="multipart/form-data">
                             {/* Upload video file */}
-                            Upload Your Video
-                            <Dragger {...videoFile}>
+                            {/* Upload Your Video */}
+                            {/* <Dragger {...videoFile}>
                                 <p className="ant-upload-drag-icon">
                                     <InboxOutlined />
                                 </p>
@@ -202,11 +225,22 @@ const Uploader = () => {
                                 <p className="ant-upload-hint">
                                     Upload you video here to get a vector overlay on your video.
                                 </p>
-                            </Dragger>
+                            </Dragger> */}
+                            <Row>
+                                <Col md={12}>
+                                    Upload Your Video
+                                    <input
+                                        type="file"
+                                        placeholder="Upload you video"
+                                        name="videoFile"
+                                        onChange={event => handleFileChange(event)}
+                                    />
+                                </Col>
+                            </Row>
                             <br />
                             {/* Upload .txt file generated by the force plates*/}
-                            Upload Force Plate details
-                            <Dragger {...textFile}>
+                            {/* Upload Force Plate details */}
+                            {/* <Dragger {...textFile}>
                                 <p className="ant-upload-drag-icon">
                                     <InboxOutlined />
                                 </p>
@@ -216,7 +250,18 @@ const Uploader = () => {
                                 <p className="ant-upload-hint">
                                     Upload you video here to get a vector overlay on your video.
                                 </p>
-                            </Dragger>
+                            </Dragger> */}
+                            <Row>
+                                <Col md={12}>
+                                    Upload Force Plate details
+                                    <input
+                                        type="file"
+                                        placeholder="Upload details of force plate"
+                                        name="textFile"
+                                        onChange={event => handleFileChange(event)}
+                                    />
+                                </Col>
+                            </Row>
                             <br />
                             {/* Other required data */}
                             <Row>

@@ -52,7 +52,7 @@ const SignUp = () => {
             setRePasswordErr(" ")
         }
         console.log(formdata);
-        axios.post(process.env.REACT_APP_SERVER_URL.concat("auth/users/"), formdata)
+        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/auth/users/"), formdata)
             .then((response,request) => {
                 message.success("Account created Successfully. Please Log In");
                 navigate('/login');

@@ -20,14 +20,17 @@ import VectorOverlay from './components/vectorOverlay/VectorOverlay';
 function App() {
 
   const [userDetails, setUserDetails] = useState({
-    token: "",
+    email: "",
+    first_name: "",
+    id: "",
+    last_name: ""
   });
 
   const [userToken, setUserToken] = useState("");
 
   return (
     <div className='App'>
-      <UserContext.Provider value={{userDetails, setUserDetails, userToken, setUserToken}} >
+      <UserContext.Provider value={{ userDetails, setUserDetails, userToken, setUserToken }} >
         <BrowserRouter>
           <Sidebar />
           <div className='content'>
