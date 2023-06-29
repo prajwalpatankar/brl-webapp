@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Container, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Navbar.css';
 import { UserContext } from '../../contexts/UserContext';
@@ -12,6 +12,9 @@ const Navbar = () => {
 
     // state to identify which buttons to display
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // to handle redirects
+    const navigate = useNavigate ();
 
     // user Authentication
     useEffect(() => {
@@ -29,15 +32,18 @@ const Navbar = () => {
 
     // handle Logout method
     const handleLogout = () => {
+        setUserToken('');
+        setIsLoggedIn(false);
         message.success('Successfully Logged Out')
         localStorage.setItem('token', '');
-        setUserToken('');
+        navigate('/')
     }
 
     return (
         <div className='navbar'>
             {isLoggedIn ?
                 <>
+                    <Link to='/vectorOverlay'><Button className='navbar-button' >Home</Button></Link>
                     <Button onClick={handleLogout} className='navbar-button' >Log Out</Button>
                 </>
                 :

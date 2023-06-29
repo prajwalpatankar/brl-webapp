@@ -1,8 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
+import './Auth.css';
 import { Container } from 'react-bootstrap';
 
 const LogIn = () => {
@@ -47,6 +48,7 @@ const LogIn = () => {
     return (
         <div>
             <Container fluid='true'>
+                <h4>Login</h4>
                 <form onSubmit={(event) => handleFormSubmit(event)}>
                     <div class="form-group">
                         <label for="email">Email address</label>
@@ -58,6 +60,7 @@ const LogIn = () => {
                         <input type="password" class="form-control" name="password" id="password" placeholder="Password" onChange={event => handleFormChange(event)} />
                     </div>
                     <div>
+                        <Link to='/forgotPassword'>Forgot Password?</Link><br />
                         <Link to='/signup'>Don't have an account?</Link>
                     </div>
                     <button type="submit" class="btn btn-primary">Log in</button>

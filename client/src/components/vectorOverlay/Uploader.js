@@ -1,14 +1,19 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 import { InboxOutlined } from "@ant-design/icons";
 import { Input, Upload, message, Button, Spin } from "antd";
-import { useNavigate } from 'react-router-dom';
+import { createPath, useNavigate } from 'react-router-dom';
 
 import "./VectorOverlay.css";
 import { Container, Row, Col } from "react-bootstrap";
 
 const Uploader = () => {
+
+    // --------------------------------------------------------------------
+    // Refs
+    const inputFileRef1 = useRef(null);
+    const inputFileRef2 = useRef(null);
 
     // --------------------------------------------------------------------
     // Constants
@@ -44,7 +49,7 @@ const Uploader = () => {
         textFile: [],
         samplingRate: "",
         bodyWeightPerMeter: "",
-        forcePlateNames: [],
+        forcePlateNames: [""],
         lengthOfPlate: "",
         widthOfPlate: "",
         heightOfPlate: "",
@@ -52,6 +57,9 @@ const Uploader = () => {
 
     // State to display Output
     const [outputVisibility, setOutputVisibility] = useState(false);
+
+    // State to store the output
+    const [outputUrl, setOutputUrl] = useState('');
 
 
     // --------------------------------------------------------------------
@@ -80,6 +88,8 @@ const Uploader = () => {
                             .catch((error) => {
                                 console.log(error)
                             })
+                    } else {
+                        setRequestData({ ...requestData, userID: userDetails.id })
                     }
                 })
                 .catch((error) => {
@@ -87,13 +97,13 @@ const Uploader = () => {
                     navigate('/login')
                 })
         }
-    })
+    }, [])
 
     // --------------------------------------------------------------------
     // Methods
 
     const handleFileChange = (event) => {
-        setRequestData({...requestData, [event.target.name]: event.target.files[0]})
+        setRequestData({ ...requestData, [event.target.name]: event.target.files[0] })
     }
 
     // Handle video file change
@@ -177,29 +187,37 @@ const Uploader = () => {
 
 
         // // Send Request here
+        console.log(forcePlateList)
         console.log(requestData);
 
-        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData , {
+        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData, {
             headers: {
                 Authorization: `JWT ${localStorage.getItem('token')}`,
                 'Content-Type': 'multipart/form-data',
             },
         })
             .then((response, _) => {
-                console.log(response);
-                setRequestData({
-                    ...requestData,
-                    videoFile: [],
-                    textFile: [],
-                    samplingRate: "",
-                    bodyWeightPerMeter: "",
-                    forcePlateNames: [],
-                    lengthOfPlate: "",
-                    widthOfPlate: "",
-                    heightOfPlate: "",
-                })
-                setForcePlateList([""]);
-                setOutputVisibility(true);
+                setOutputUrl(response.data.videoFile)
+                console.log(response.data.videoFile)
+                // setRequestData({
+                //     ...requestData,
+                //     videoFile: [],
+                //     textFile: [],
+                //     samplingRate: "",
+                //     bodyWeightPerMeter: "",
+                //     forcePlateNames: [""],
+                //     lengthOfPlate: "",
+                //     widthOfPlate: "",
+                //     heightOfPlate: "",
+                // })
+                // setForcePlateList([""]);
+                // setOutputVisibility(true);
+                // if (inputFileRef1.current) {
+                //     inputFileRef1.current.value = null;
+                // }
+                // if (inputFileRef2.current) {
+                //     inputFileRef2.current.value = null;
+                // }
             })
             .catch((error) => {
                 console.log(error);
@@ -233,6 +251,7 @@ const Uploader = () => {
                                         type="file"
                                         placeholder="Upload you video"
                                         name="videoFile"
+                                        ref={inputFileRef1}
                                         onChange={event => handleFileChange(event)}
                                     />
                                 </Col>
@@ -258,6 +277,7 @@ const Uploader = () => {
                                         type="file"
                                         placeholder="Upload details of force plate"
                                         name="textFile"
+                                        ref={inputFileRef2}
                                         onChange={event => handleFileChange(event)}
                                     />
                                 </Col>
@@ -382,7 +402,12 @@ const Uploader = () => {
                     {outputVisibility ?
                         <div className="output-window">
                             <h2 className="output-title">Output</h2>
-
+                            <h5>Input Video</h5>
+                            <iframe width="640" height="300" title='input_video' src={outputUrl} autoPlay muted loop>
+                            </iframe>
+                            <h5>Output Video</h5>
+                            <iframe width="640" height="300" title='input_video' src={outputUrl} autoPlay muted loop>
+                            </iframe>
                         </div>
                         :
                         <></>

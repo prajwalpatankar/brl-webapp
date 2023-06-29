@@ -1,5 +1,4 @@
-import React, { useState, useContext } from 'react';
-import { UserContext } from '../../contexts/UserContext';
+import React, { useState } from 'react';
 import { Link, useNavigate   } from 'react-router-dom';
 import axios from 'axios';
 
@@ -8,9 +7,6 @@ import { Container } from 'react-bootstrap';
 import { message } from 'antd';
 
 const SignUp = () => {
-
-    // destructuring context
-    const { userDetails, setUserDetails } = useContext(UserContext);
 
     // Form Data state
     const [formdata, setFormData] = useState({
@@ -66,6 +62,7 @@ const SignUp = () => {
     return (
         <div>
             <Container fluid='true'>
+                <h4>Sign up</h4>
                 <div className="col-md-6">
                     <form onSubmit={(event) => handleFormSubmit(event)}>
                         <div class="form-group">

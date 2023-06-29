@@ -10,11 +10,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { UserContext } from './contexts/UserContext';
 
 // Importing components
-import Sidebar from './components/sidebar/Sidebar'
+// import Sidebar from './components/sidebar/Sidebar'
 import Home from './components/home/Home';
 import LogIn from './components/auth/LogIn';
 import SignUp from './components/auth/SignUp';
 import VectorOverlay from './components/vectorOverlay/VectorOverlay';
+import ForgotPassword from './components/auth/ForgotPassword';
 
 
 function App() {
@@ -32,8 +33,7 @@ function App() {
     <div className='App'>
       <UserContext.Provider value={{ userDetails, setUserDetails, userToken, setUserToken }} >
         <BrowserRouter>
-          <Sidebar />
-          <div className='content'>
+          <div className=''>
             <Routes>
               {/* Mention all Routes Here */}
 
@@ -43,6 +43,7 @@ function App() {
 
               <Route exact path="/login" element={<LogIn />} />
               <Route exact path="/signup" element={<SignUp />} />
+              <Route exact path="/forgotPassword" element={<ForgotPassword />} />
             </Routes>
           </div>
         </BrowserRouter>

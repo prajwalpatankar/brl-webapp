@@ -1,0 +1,3 @@
+[submodule "server/labcodes/labcodes"]
+	path = server/labcodes/labcodes
+	url = https://github.com/USCBiomechanicsLab/labcodes.git

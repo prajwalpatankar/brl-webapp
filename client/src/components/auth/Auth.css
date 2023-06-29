@@ -1,0 +1,11 @@
+.link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+
+}
+
+.resend-email {
+    display: flex;
+    align-items: center;
+}
