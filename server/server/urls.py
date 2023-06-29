@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
 from vectoroverlay.views import DataUploader_Viweset
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # admin panel
@@ -30,4 +32,4 @@ urlpatterns = [
     path('api/v1/data_uploader/', DataUploader_Viweset.as_view({'get': 'list', 'post': 'create'}), name='data_uploader_crud'),
     # defaulr drf routes
     path('api-auth/', include('rest_framework.urls'))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
