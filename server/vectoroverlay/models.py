@@ -5,7 +5,7 @@ class UploadedData(models.Model):
     videoFile = models.FileField(upload_to='uploads/', null=True)
     textFile = models.FileField(upload_to='uploads/', null=True)
     bodyWeightPerMeter = models.DecimalField(max_digits=5, decimal_places=2)
-    forcePlateNames = models.JSONField(default=list, blank=True, null=True)
+    forcePlateNames = models.JSONField(default=list)
     heightOfPlate = models.DecimalField(max_digits=5, decimal_places=2)
     lengthOfPlate = models.DecimalField(max_digits=5, decimal_places=2)
     samplingRate = models.DecimalField(max_digits=5, decimal_places=2)

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import './Auth.css';
 import { Container } from 'react-bootstrap';
@@ -17,7 +17,7 @@ const ForgotPassword = () => {
     const [showResendLink, setShowResendUrl] = useState(false);
 
     // to handle redirects
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     // handle form input change
     const handleFormChange = (event) => {

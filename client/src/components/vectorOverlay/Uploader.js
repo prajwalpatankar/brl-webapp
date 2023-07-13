@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
-import { InboxOutlined } from "@ant-design/icons";
-import { Input, Upload, message, Button, Spin } from "antd";
-import { createPath, useNavigate } from 'react-router-dom';
+// import { InboxOutlined } from "@ant-design/icons";
+import { Input, Button, Spin } from "antd";
+import { useNavigate } from 'react-router-dom';
 
 import "./VectorOverlay.css";
 import { Container, Row, Col } from "react-bootstrap";
@@ -18,11 +18,11 @@ const Uploader = () => {
     // --------------------------------------------------------------------
     // Constants
 
-    const { Dragger } = Upload;
+    // const { Dragger } = Upload;
 
     const navigate = useNavigate();
 
-    const { userToken, setUserToken, userDetails, setUserDetails } = useContext(UserContext);
+    const { setUserToken, userDetails, setUserDetails } = useContext(UserContext);
 
     // --------------------------------------------------------------------
     // States
@@ -31,10 +31,10 @@ const Uploader = () => {
     const [showSpinner, setShowSpinner] = useState(true);
 
     // State to store the video file
-    const [fileListVideo, setFileListVideo] = useState([]);
+    // const [fileListVideo, setFileListVideo] = useState([]);
 
     // State to store the txt file
-    const [fileListText, setFileListText] = useState([]);
+    // const [fileListText, setFileListText] = useState([]);
 
     // State to handle file uploading stage
     //   const [uploading, setUploading] = useState(false);
@@ -97,7 +97,7 @@ const Uploader = () => {
                     navigate('/login')
                 })
         }
-    }, [])
+    })
 
     // --------------------------------------------------------------------
     // Methods
@@ -211,7 +211,7 @@ const Uploader = () => {
                 //     heightOfPlate: "",
                 // })
                 // setForcePlateList([""]);
-                // setOutputVisibility(true);
+                setOutputVisibility(true);
                 // if (inputFileRef1.current) {
                 //     inputFileRef1.current.value = null;
                 // }

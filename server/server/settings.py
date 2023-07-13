@@ -22,6 +22,10 @@ dotenv.load_dotenv()
 from datetime import timedelta
 import os
 
+# adding labcodes repository path to sys
+import sys
+sys.path.append('C:\\USC_______2022-24\\BRL\\website\\server\\labcodes\\labcodes')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -54,6 +58,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'vectoroverlay',
     'usermanager',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
 ]
 
 # REST_FRAMEWORK = {
