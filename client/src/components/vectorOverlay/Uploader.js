@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
-import { Input, Button, Spin } from "antd";
+import { Input, Button, Spin, Modal } from "antd";
 import { useNavigate } from 'react-router-dom';
 
 import "./VectorOverlay.css";
@@ -14,11 +14,12 @@ const Uploader = () => {
     // Refs
     const inputFileRef1 = useRef(null);
     const inputFileRef2 = useRef(null);
+    const videoRef = useRef(null);
+    const canvasRefCrop = useRef(null);
+    const canvasRefEndPoint = useRef(null);
 
     // --------------------------------------------------------------------
     // Constants
-
-    // const { Dragger } = Upload;
 
     const navigate = useNavigate();
 
@@ -49,17 +50,33 @@ const Uploader = () => {
         textFile: [],
         samplingRate: "",
         bodyWeightPerMeter: "",
-        forcePlateNames: [""],
+        forcePlateNames: [],
         lengthOfPlate: "",
         widthOfPlate: "",
         heightOfPlate: "",
+        endPointsX: [],
+        endPointsY: [],
     });
 
     // State to display Output
     const [outputVisibility, setOutputVisibility] = useState(false);
 
     // State to store the output
+    const [inputUrl, setInputUrl] = useState('');
     const [outputUrl, setOutputUrl] = useState('');
+
+    // State to handle Modal visibility for crop modal
+    const [isModalOpenCrop, setIsModalOpenCrop] = useState(false);
+
+    // State to handle Modal visibility for plate end points
+    const [isModalOpenEndPoint, setIsModalOpenEndPoint] = useState(false);
+
+    // States to handle cropping area
+
+    // State to handle end point of force Plates
+    const [endPointsX, setEndPointsX] = useState([]);
+    const [endPointsY, setEndPointsY] = useState([]);
+
 
 
     // --------------------------------------------------------------------
@@ -97,50 +114,187 @@ const Uploader = () => {
                     navigate('/login')
                 })
         }
-    })
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+
 
     // --------------------------------------------------------------------
     // Methods
 
+    // Handle video file change
+    const handleVideoFileChange = (event) => {
+        setRequestData({ ...requestData, [event.target.name]: event.target.files[0] })
+        setIsModalOpenCrop(true)
+        setTimeout(() => {
+            generateCanvas(event.target.files[0])
+        }, 300)
+    }
+
+    // Canvas Modal
+    const handleCancelCropVideo = () => {
+        if (inputFileRef1.current) {
+            inputFileRef1.current.value = null;
+        }
+        setIsModalOpenCrop(false);
+    };
+
+    // display first frame of the video in a canvas
+    const generateCanvas = (file) => {
+        const canvas = canvasRefCrop.current;
+        const video = videoRef.current;
+        video.crossOrigin = 'anonymous';
+        video.src = URL.createObjectURL(file);
+        video.load()
+
+        video.oncanplay = () => {
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth / 2;
+            canvas.height = video.videoHeight / 2;
+            canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth / 2, video.videoHeight / 2);
+        };
+    }
+
+    const [startX, setStartX] = useState(0);
+    const [startY, setStartY] = useState(0);
+    const [endX, setEndX] = useState(0);
+    const [endY, setEndY] = useState(0);
+    const [isSelecting, setIsSelecting] = useState(false);
+
+    useEffect(() => {
+        const canvas = canvasRefCrop.current;
+        if (!canvas) return;
+
+        const handleMouseDown = (event) => {
+            console.log("DOWN")
+            const rect = canvas.getBoundingClientRect();
+            console.log("X", (event.clientX - rect.left) * 2)
+            console.log("Y", (event.clientY - rect.top) * 2)
+            setStartX((event.clientX - rect.left) * 2);
+            setStartY((event.clientY - rect.top) * 2);
+            setIsSelecting(true);
+        };
+
+        // const handleMouseMove = (event) => {
+        //     if (isSelecting) {
+        //         const rect = canvas.getBoundingClientRect();
+        //         setEndtX((event.clientX - rect.left) * 2);
+        //         setEndY((event.clientY - rect.top) * 2);
+        //         drawSelection();
+        //     }
+        // };
+
+        const handleMouseUp = (event) => {
+            if (isSelecting) {
+                setIsSelecting(false);
+                const rect = canvas.getBoundingClientRect();
+                setEndX((event.clientX - rect.left) * 2);
+                setEndY((event.clientY - rect.top) * 2);
+                drawSelection((event.clientX - rect.left) * 2, (event.clientY - rect.top) * 2);
+            }
+        };
+
+        canvas.addEventListener('mousedown', handleMouseDown);
+        // canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            canvas.removeEventListener('mousedown', handleMouseDown);
+            // canvas.removeEventListener('mousemove', handleMouseMove);
+            canvas.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [canvasRefCrop, isSelecting, isModalOpenCrop]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+    const drawSelection = (eX, eY) => {
+        const canvas = canvasRefCrop.current;
+        const context = canvas.getContext('2d');
+        context.strokeStyle = 'red';
+        context.lineWidth = 2;
+        context.strokeRect(startX / 2, startY / 2, (eX - startX) / 2, (eY - startY) / 2);
+    };
+
+    // Clear rectangle selections
+    const clearCanvasSelection = (event) => {
+        event.preventDefault();
+        generateCanvas(requestData.videoFile)
+    }
+
+    // Crop Video Data
+    const handleCrop = () => {
+        setIsModalOpenCrop(false);
+        setIsModalOpenEndPoint(true);
+        setTimeout(() => {
+            generateCanvasEndPoint(requestData.videoFile);
+        }, 300)
+    };
+
+    // Generate a new cropped canvas
+    const generateCanvasEndPoint = (file) => {
+        const canvas = canvasRefEndPoint.current;
+        const video = videoRef.current;
+        video.crossOrigin = 'anonymous';
+        video.src = URL.createObjectURL(file);
+        video.load()
+
+        video.oncanplay = () => {
+            // Set canvas dimensions to match video
+            canvas.width = endX - startX;
+            canvas.height = endY - startY;
+            canvas.getContext('2d').drawImage(video, startX, startY, (endX - startX), (endY - startY), 0, 0, (endX - startX), (endY - startY));
+        };
+    }
+
+    useEffect(() => {
+        const canvas = canvasRefEndPoint.current;
+        if (!canvas) return;
+
+        const handleMouseDown = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            console.log("X", (event.clientX - rect.left))
+            console.log("Y", (event.clientY - rect.top))
+            const context = canvas.getContext('2d');
+            context.strokeRect(event.clientX - rect.left,event.clientY - rect.top,1,1);
+            setEndPointsX([...endPointsX, (startX + event.clientX - rect.left)]);
+            setEndPointsY([...endPointsY, (startY + event.clientY - rect.top)]);
+        };
+
+        canvas.addEventListener('mousedown', handleMouseDown);
+
+        return () => {
+            canvas.removeEventListener('mousedown', handleMouseDown);
+        };
+    }, [canvasRefEndPoint, isModalOpenEndPoint, endPointsX, endPointsY]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+    // Canvas Modal for End Point
+    const handleCancelEndPoint = () => {
+        setIsModalOpenEndPoint(false);
+        setIsModalOpenCrop(true);
+        setEndPointsX([]);
+        setEndPointsY([]);
+    };
+
+    // Save End Points
+    const selectEndpoints = () => {
+        console.log(endPointsX)
+        console.log(endPointsY)
+        setRequestData({...requestData, endPointsX: endPointsX, endPointsY: endPointsY})
+        setIsModalOpenEndPoint(false);
+    }
+
+    const clearEndPoints = () => {
+        setEndPointsX([]);
+        setEndPointsY([]);
+        generateCanvasEndPoint(requestData.videoFile);
+    }
+
+
+
+
+    // Handle force plate file change
     const handleFileChange = (event) => {
         setRequestData({ ...requestData, [event.target.name]: event.target.files[0] })
     }
-
-    // Handle video file change
-    // const videoFile = {
-    //     onRemove: (file) => {
-    //         const index = fileListVideo.indexOf(file);
-    //         const newFileList = fileListVideo.slice();
-    //         newFileList.splice(index, 1);
-    //         setFileListVideo(newFileList);
-    //         setRequestData({ ...requestData, videoFile: newFileList });
-    //         console.log(requestData)
-    //     },
-    //     beforeUpload: (file) => {
-    //         setFileListVideo([...fileListVideo, file]);
-    //         setRequestData({ ...requestData, videoFile: [...fileListText, file] });
-    //         return false;
-    //     },
-    //     fileListVideo,
-    // };
-
-    // Handle text file change
-    // const textFile = {
-    //     onRemove: (file) => {
-    //         const index = fileListText.indexOf(file);
-    //         const newFileList = fileListText.slice();
-    //         newFileList.splice(index, 1);
-    //         setFileListText(newFileList);
-    //         setRequestData({ ...requestData, textFile: newFileList });
-    //         console.log(requestData)
-    //     },
-    //     beforeUpload: (file) => {
-    //         setFileListText([...fileListText, file]);
-    //         setRequestData({ ...requestData, textFile: [...fileListText, file] });
-    //         return false;
-    //     },
-    //     fileListText,
-    // };
 
     // Add dynamic Row to Force Plate List
     const addForcePlate = () => {
@@ -197,7 +351,8 @@ const Uploader = () => {
             },
         })
             .then((response, _) => {
-                setOutputUrl(response.data.videoFile)
+                setOutputUrl(response.data.videoFileInput)
+                setInputUrl(response.data.videoFileInput)
                 console.log(response.data.videoFile)
                 // setRequestData({
                 //     ...requestData,
@@ -205,10 +360,12 @@ const Uploader = () => {
                 //     textFile: [],
                 //     samplingRate: "",
                 //     bodyWeightPerMeter: "",
-                //     forcePlateNames: [""],
+                //     forcePlateNames: [],
                 //     lengthOfPlate: "",
                 //     widthOfPlate: "",
                 //     heightOfPlate: "",
+                //     endPointsX: [],
+                //     endPointsY: [],
                 // })
                 // setForcePlateList([""]);
                 setOutputVisibility(true);
@@ -232,18 +389,6 @@ const Uploader = () => {
                         {/* Container to pack video data into a request */}
                         <form enctype="multipart/form-data">
                             {/* Upload video file */}
-                            {/* Upload Your Video */}
-                            {/* <Dragger {...videoFile}>
-                                <p className="ant-upload-drag-icon">
-                                    <InboxOutlined />
-                                </p>
-                                <p className="ant-upload-text">
-                                    Click or drag file to this area to upload
-                                </p>
-                                <p className="ant-upload-hint">
-                                    Upload you video here to get a vector overlay on your video.
-                                </p>
-                            </Dragger> */}
                             <Row>
                                 <Col md={12}>
                                     Upload Your Video
@@ -252,24 +397,44 @@ const Uploader = () => {
                                         placeholder="Upload you video"
                                         name="videoFile"
                                         ref={inputFileRef1}
-                                        onChange={event => handleFileChange(event)}
+                                        onChange={event => handleVideoFileChange(event)}
                                     />
                                 </Col>
                             </Row>
                             <br />
+
+                            <video ref={videoRef} controls autoPlay style={{ display: "none" }}></video>
+                            <Modal
+                                title="Please Crop the Area of the Force Plate"
+                                open={isModalOpenCrop}
+                                onCancel={handleCancelCropVideo}
+                                closeIcon={false}
+                                footer={[
+
+                                    <Button key="crop" onClick={event => clearCanvasSelection(event)}>Clear Selection</Button>,
+                                    <Button type="primary" key="back" onClick={handleCrop}>
+                                        Crop
+                                    </Button>,
+                                ]}>
+                                <canvas ref={canvasRefCrop} style={{ display: "inline" }}></canvas>
+                            </Modal>
+                            <Modal
+                                title="Please Select the End Points of Force Plate by double clicking"
+                                open={isModalOpenEndPoint}
+                                onCancel={handleCancelEndPoint}
+                                closeIcon={false}
+                                footer={[
+
+                                    <Button key="crop" onClick={event => clearEndPoints(event)}>Clear</Button>,
+                                    <Button type="primary" key="back" onClick={selectEndpoints}>
+                                        Done
+                                    </Button>,
+                                ]}>
+                                <canvas ref={canvasRefEndPoint} style={{ display: "inline" }}></canvas>
+                            </Modal>
+                            <br />
                             {/* Upload .txt file generated by the force plates*/}
                             {/* Upload Force Plate details */}
-                            {/* <Dragger {...textFile}>
-                                <p className="ant-upload-drag-icon">
-                                    <InboxOutlined />
-                                </p>
-                                <p className="ant-upload-text">
-                                    Click or drag file to this area to upload
-                                </p>
-                                <p className="ant-upload-hint">
-                                    Upload you video here to get a vector overlay on your video.
-                                </p>
-                            </Dragger> */}
                             <Row>
                                 <Col md={12}>
                                     Upload Force Plate details
@@ -403,7 +568,7 @@ const Uploader = () => {
                         <div className="output-window">
                             <h2 className="output-title">Output</h2>
                             <h5>Input Video</h5>
-                            <iframe width="640" height="300" title='input_video' src={outputUrl} autoPlay muted loop>
+                            <iframe width="640" height="300" title='input_video' src={inputUrl} autoPlay muted loop>
                             </iframe>
                             <h5>Output Video</h5>
                             <iframe width="640" height="300" title='input_video' src={outputUrl} autoPlay muted loop>

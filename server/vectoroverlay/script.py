@@ -22,18 +22,20 @@ ci_f1 = FindContactIntervals((data_f1_raw['Attila49 9286BA_Fz'] +data_f1_raw['Ry
 data_f1 = {0: data_f1_raw.filter(regex = fp1).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:],
         1: data_f1_raw.filter(regex = fp2).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:]}
 plate_area = findplate(file1_video ,framestart=0, label = 'Insert image here')
+print("plate area:", type(plate_area.get(0)))
+# print("type", type(plate_area))
 
-pix2m = pix2m_fromplate(plate_area, (0.9,0.6))
-mag2pix = bw2pix(pix2m['x'], bw, bwpermeter=2)
+# pix2m = pix2m_fromplate(plate_area, (0.9,0.6))
+# mag2pix = bw2pix(pix2m['x'], bw, bwpermeter=2)
 
-flip = {0: ['fy', 'ax'],
-        1: ['fy', 'ax']}
+# flip = {0: ['fy', 'ax'],
+#         1: ['fy', 'ax']}
 
-transform_data = convertdata(data_f1, mag2pix, pix2m, view='fy', mode='combined', platelocs=plate_area, flip=flip)
+# transform_data = convertdata(data_f1, mag2pix, pix2m, view='fy', mode='combined', platelocs=plate_area, flip=flip)
 
-transform_data.data2pix()
+# transform_data.data2pix()
 
-data_pix_f1 = transform_data.data_fp
+# data_pix_f1 = transform_data.data_fp
 
-vectoroverlay(file1_video, file1_vid_new, data_pix_f1, contactframe_f1, samp_force=samp, samp_video=sampvid_f1, dispthresh=2)
+# vectoroverlay(file1_video, file1_vid_new, data_pix_f1, contactframe_f1, samp_force=samp, samp_video=sampvid_f1, dispthresh=2)
 

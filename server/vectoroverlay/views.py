@@ -4,7 +4,14 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from .models import *
-from .script import create_vector_overlay
+# from .script import create_vector_overlay
+
+import pandas as pd
+import os
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA = os.path.join(BASE_DIR, 'media')
+UPLOADS = os.path.join(MEDIA, 'uploads')
 
 from ImportForce_TXT import ImportForce_TXT
 from FindContactIntervals import FindContactIntervals
@@ -26,37 +33,78 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-
-        print("HERE", request.POST)
-
+    
         # # Alternate / easier method to get video url
         # video_file_post = request.POST.get('videoFile')
-        # print(video_file_post)
 
         # Set video paths
         file1_force = serializer.data.get('textFile')
         file1_video = serializer.data.get('videoFile')
 
-        # Set output path
-        file1_vid_new = file1_video[:-4]+ '_OL.mp4'
+        # Initilize number of force plates
+        number_of_force_plates = 0
+        # Get force plate data and update number of force plates
+        forcePlateList = request.POST.getlist('forcePlateNames[]', [])
+        if(forcePlateList == None):
+             forcePlateList = request.POST.get('forcePlateNames', "")
+             number_of_force_plates = 1
+        else:
+             number_of_force_plates = len(forcePlateList)
 
-        # Currently hardcoded plate names
-        fp1 = 'Attila49'
-        fp2 = 'Ryan52'
-        sampvid_f1 = 120
-        contactframe_f1 = 163-1 
+        # Get Sampling Rate
+        sampvid_f1 = int(float(serializer.data.get('samplingRate')))
+        
+        # Get contact frame
+        contactframe_f1 = 240 
+
+        # Import Force TXT
         data_f1_raw, samp, bw = ImportForce_TXT(file1_force)
-        ci_f1 = FindContactIntervals((data_f1_raw['Attila49 9286BA_Fz'] +data_f1_raw['Ryan52 9286BA_Fz']),samp,thresh=16)
-        data_f1 = {0: data_f1_raw.filter(regex = fp1).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:],
-                1: data_f1_raw.filter(regex = fp2).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:]}
-        plate_area = findplate(file1_video ,framestart=0, label = 'Insert image here')
+
+        # Initialize input to FindContactInterval
+        data_input_fci = data_f1_raw[ forcePlateList[0] + ' 9286BA_Fz' ]
+        for i in range(1,number_of_force_plates):
+             data_input_fci = data_input_fci + data_f1_raw[ forcePlateList[i] + ' 9286BA_Fz' ]
+
+        #  Call FindContactIntervals
+        ci_f1 = FindContactIntervals(data_input_fci,samp,thresh=16)     
+        
+        # plate_area = findplate(file1_video ,framestart=0, label = 'Insert image here')
+        # Below code replaces the need to call findplate()
+        x = request.POST.getlist('endPointsX[]', [])
+        y = request.POST.getlist('endPointsY[]', [])
+
+        endPoints_x = []
+        endPoints_y = []
+
+        for val in x:
+             endPoints_x.append(int(val))
+
+        for val in y:
+             endPoints_y.append(int(val))
+
+
+        # Create a dataframe to add to dictionary
+        plate_temp = pd.DataFrame((endPoints_x,endPoints_y)).rename(index={0: 'x', 1: 'y'})
+        plate_area = {}
+        # loop through number of plates
+        for cnt in range(int(len(plate_temp.columns)/4)):
+                plate_area[cnt] = plate_temp.iloc[:, (cnt*4):4*(cnt+1)]
 
 
         pix2m = pix2m_fromplate(plate_area, (0.9,0.6))
-        mag2pix = bw2pix(pix2m['x'], bw, bwpermeter=2)
+
+        # Get Body Weight Per Meter
+        bwpermeter = float(serializer.data.get('bodyWeightPerMeter'))
+
+        mag2pix = bw2pix(pix2m['x'], bw, bwpermeter=bwpermeter)
 
         flip = {0: ['fy', 'ax'],
                 1: ['fy', 'ax']}
+
+        # calculate data_f1 to pass to convertdata
+        data_f1 = {}
+        for i in range(number_of_force_plates):
+                data_f1[i] = data_f1_raw.filter(regex = forcePlateList[i]).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:]
         
         transform_data = convertdata(data_f1, mag2pix, pix2m, view='fy', mode='combined', platelocs=plate_area, flip=flip)
 
@@ -64,37 +112,12 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
 
         data_pix_f1 = transform_data.data_fp
 
+        # Set output path
+        file1_vid_return = file1_video[:-4]+ '_OL.mp4'
+        file1_vid_new = file1_vid_return[30:]
+        file1_vid_new = os.path.join(UPLOADS, file1_vid_new)
+
+        # Call vector Overlay
         vectoroverlay(file1_video, file1_vid_new, data_pix_f1, contactframe_f1, samp_force=samp, samp_video=sampvid_f1, dispthresh=2)
-
         
-        return Response({'videoFile': file1_force}, status=status.HTTP_201_CREATED, headers=headers)
-
-        # In case we decide to seperate out the script from views
-        # # Run the Python script using subprocess
-        # script_path = video_file_url
-        # command = ['python', script_path, video_file]
-        # process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # stdout, stderr = process.communicate()
-
-        # # Check if the script ran successfully
-        # if process.returncode == 0:
-        #     # Assuming the new video file is generated by the script
-        #     new_video_file = 'path/to/new/video.mp4'  # Replace with the actual path to the new video file
-
-        #     # Read the new video file as binary data
-        #     with open(new_video_file, 'rb') as file:
-        #         response = file.read()
-
-        #     # Set the appropriate response headers
-        #     response_headers = {
-        #         'Content-Type': 'video/mp4',  # Adjust the content type based on the actual video format
-        #         'Content-Disposition': 'attachment; filename="new_video.mp4"',  # Replace with the desired filename
-        #     }
-
-        #     return HttpResponse(response, headers=response_headers, status=status.HTTP_201_CREATED)
-        # else:
-        #     # Handle the case when the script encountered an error
-        #     error_message = stderr.decode('utf-8')
-        #     return Response({'error': error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    
+        return Response({'videoFileInput': file1_video, 'videoFileOutput': file1_vid_return}, status=status.HTTP_201_CREATED, headers=headers)
