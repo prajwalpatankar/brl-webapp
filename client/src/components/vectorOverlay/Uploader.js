@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
-import { Input, Button, Spin, Modal } from "antd";
+import { Input, Button, Spin, Modal, message } from "antd";
 import { useNavigate } from 'react-router-dom';
 
 import "./VectorOverlay.css";
@@ -53,7 +53,7 @@ const Uploader = () => {
         forcePlateNames: [],
         lengthOfPlate: "",
         widthOfPlate: "",
-        heightOfPlate: "",
+        contactFrame: "",
         endPointsX: [],
         endPointsY: [],
     });
@@ -77,7 +77,16 @@ const Uploader = () => {
     const [endPointsX, setEndPointsX] = useState([]);
     const [endPointsY, setEndPointsY] = useState([]);
 
-
+    const [validator, setValidator] = useState({
+        videoFile: "",
+        textFile: "",
+        samplingRate: "",
+        bodyWeightPerMeter: "",
+        forcePlateNames: "",
+        lengthOfPlate: "",
+        widthOfPlate: "",
+        contactFrame: "",
+    });
 
     // --------------------------------------------------------------------
     // Initializers
@@ -126,7 +135,7 @@ const Uploader = () => {
         setRequestData({ ...requestData, [event.target.name]: event.target.files[0] })
         setIsModalOpenCrop(true)
         setTimeout(() => {
-            generateCanvas(event.target.files[0])
+            generateCanvas(event.target.files[0], 1)
         }, 300)
     }
 
@@ -139,15 +148,17 @@ const Uploader = () => {
     };
 
     // display first frame of the video in a canvas
-    const generateCanvas = (file) => {
+    const generateCanvas = (file, generationType) => {
         const canvas = canvasRefCrop.current;
         const video = videoRef.current;
         video.crossOrigin = 'anonymous';
         video.src = URL.createObjectURL(file);
         video.load()
-
         video.oncanplay = () => {
             // Set canvas dimensions to match video
+            if (generationType === 1) {
+                message.success("Video Loaded")
+            }
             canvas.width = video.videoWidth / 2;
             canvas.height = video.videoHeight / 2;
             canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth / 2, video.videoHeight / 2);
@@ -216,13 +227,15 @@ const Uploader = () => {
     // Clear rectangle selections
     const clearCanvasSelection = (event) => {
         event.preventDefault();
-        generateCanvas(requestData.videoFile)
+        generateCanvas(requestData.videoFile, 0)
     }
 
     // Crop Video Data
     const handleCrop = () => {
         setIsModalOpenCrop(false);
         setIsModalOpenEndPoint(true);
+        setEndPointsX([]);
+        setEndPointsY([]);
         setTimeout(() => {
             generateCanvasEndPoint(requestData.videoFile);
         }, 300)
@@ -250,10 +263,8 @@ const Uploader = () => {
 
         const handleMouseDown = (event) => {
             const rect = canvas.getBoundingClientRect();
-            console.log("X", (event.clientX - rect.left))
-            console.log("Y", (event.clientY - rect.top))
             const context = canvas.getContext('2d');
-            context.strokeRect(event.clientX - rect.left,event.clientY - rect.top,1,1);
+            context.strokeRect(event.clientX - rect.left, event.clientY - rect.top, 2, 2);
             setEndPointsX([...endPointsX, (startX + event.clientX - rect.left)]);
             setEndPointsY([...endPointsY, (startY + event.clientY - rect.top)]);
         };
@@ -276,10 +287,14 @@ const Uploader = () => {
 
     // Save End Points
     const selectEndpoints = () => {
-        console.log(endPointsX)
-        console.log(endPointsY)
-        setRequestData({...requestData, endPointsX: endPointsX, endPointsY: endPointsY})
-        setIsModalOpenEndPoint(false);
+        if (endPointsX.length % 4 !== 0 || endPointsX.length === 0) {
+            message.error("Invalid Selection of Points. Please Select Points Again")
+            clearEndPoints();
+        } else {
+            message.success(`${endPointsX.length} end points selected`)
+            setRequestData({ ...requestData, endPointsX: endPointsX, endPointsY: endPointsY })
+            setIsModalOpenEndPoint(false);
+        }
     }
 
     const clearEndPoints = () => {
@@ -311,6 +326,7 @@ const Uploader = () => {
         const values = [...forcePlateList];
         values.splice(index, 1);
         setForcePlateList(values);
+        setRequestData({ ...requestData, forcePlateNames: values })
     };
 
     // Handle form data change (Generic)
@@ -332,53 +348,159 @@ const Uploader = () => {
     const handleUpload = (e) => {
         e.preventDefault();
 
-        // const formData = new FormData();
-        // fileListVideo.forEach((file) => {
-        //     formData.append("files[]", file);
-        // });
-        // // setUploading(true);
-        // console.log(formData);
-
-
-        // // Send Request here
-        console.log(forcePlateList)
         console.log(requestData);
 
-        axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData, {
-            headers: {
-                Authorization: `JWT ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        })
-            .then((response, _) => {
-                setOutputUrl(response.data.videoFileInput)
-                setInputUrl(response.data.videoFileInput)
-                console.log(response.data.videoFile)
-                // setRequestData({
-                //     ...requestData,
-                //     videoFile: [],
-                //     textFile: [],
-                //     samplingRate: "",
-                //     bodyWeightPerMeter: "",
-                //     forcePlateNames: [],
-                //     lengthOfPlate: "",
-                //     widthOfPlate: "",
-                //     heightOfPlate: "",
-                //     endPointsX: [],
-                //     endPointsY: [],
-                // })
-                // setForcePlateList([""]);
-                setOutputVisibility(true);
-                // if (inputFileRef1.current) {
-                //     inputFileRef1.current.value = null;
-                // }
-                // if (inputFileRef2.current) {
-                //     inputFileRef2.current.value = null;
-                // }
+
+        if (requestData.videoFile.length === 0) {
+            setValidator({
+                videoFile: "error",
+                textFile: "",
+                samplingRate: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+            message.error("Please upload a video file")
+        } else if (requestData.textFile.length === 0) {
+            setValidator({
+                videoFile: "",
+                textFile: "error",
+                samplingRate: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+            message.error("Please upload a force file")
+        } else if (requestData.samplingRate === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "error",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+        } else if (requestData.bodyWeightPerMeter === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                bodyWeightPerMeter: "error",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+        } else if (requestData.contactFrame === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "error",
+            });
+        } else if (requestData.lengthOfPlate === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "error",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+        } else if (requestData.widthOfPlate === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "error",
+                contactFrame: "",
+            });
+        } else if (requestData.forcePlateNames.length !== endPointsX.length/4) {
+            message.error("Invalid number of Force Plates")
+            message.info(`Please enter names of ${endPointsX.length/4} plate(s) as ${endPointsX.length} end points have been selected`)
+        } else {
+            const key = 'updatable';
+            message.open({
+                key,
+                type:'loading',
+                content: 'Processing your vector overlay',
+                duration: 20
             })
-            .catch((error) => {
-                console.log(error);
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+            axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData, {
+                headers: {
+                    Authorization: `JWT ${localStorage.getItem('token')}`,
+                    'Content-Type': 'multipart/form-data',
+                },
             })
+                .then((response, _) => {
+                    message.open({
+                        key,
+                        type: 'loading',
+                        content: 'Processing output video'
+                    })
+                    setOutputUrl(response.data.videoFileOutput)
+                    setInputUrl(response.data.videoFileInput)
+                    console.log(response.data.videoFileOutput)
+                    // setRequestData({
+                    //     ...requestData,
+                    //     videoFile: [],
+                    //     textFile: [],
+                    //     samplingRate: "",
+                    //     bodyWeightPerMeter: "",
+                    //     forcePlateNames: [],
+                    //     lengthOfPlate: "",
+                    //     widthOfPlate: "",
+                    //     contactFrame: "",
+                    //     endPointsX: [],
+                    //     endPointsY: [],
+                    // })
+                    // setForcePlateList([""]);
+                    setOutputVisibility(true);
+                    // if (inputFileRef1.current) {
+                    //     inputFileRef1.current.value = null;
+                    // }
+                    // if (inputFileRef2.current) {
+                    //     inputFileRef2.current.value = null;
+                    // }
+                    message.open({
+                        key,
+                        type: 'success',
+                        content: 'Vector overlay ready for download'
+                    })
+                })
+                .catch((error) => {
+                    message.open({
+                        key,
+                        type: 'error',
+                        content: 'Error in the inputs provided. Could generate a vector overlay'
+                    })
+                })
+        }
     };
 
     return (
@@ -450,7 +572,7 @@ const Uploader = () => {
                             <br />
                             {/* Other required data */}
                             <Row>
-                                <Col md={6}>
+                                <Col md={4}>
                                     Sampling Rate
                                     <Input
                                         type="number"
@@ -458,10 +580,11 @@ const Uploader = () => {
                                         name="samplingRate"
                                         value={requestData.samplingRate}
                                         onChange={event => handleFormChange(event)}
+                                        status={validator.samplingRate}
                                     />
                                 </Col>
 
-                                <Col md={6}>
+                                <Col md={4}>
                                     Body Weight per meter (kg/m)
                                     <Input
                                         type="number"
@@ -470,6 +593,19 @@ const Uploader = () => {
                                         name="bodyWeightPerMeter"
                                         value={requestData.bodyWeightPerMeter}
                                         onChange={event => handleFormChange(event)}
+                                        status={validator.bodyWeightPerMeter}
+                                    />
+                                </Col>
+                                <Col md={4}>
+                                    Contact Frame
+                                    <Input
+                                        type="number"
+                                        step={1}
+                                        placeholder="Contact Frame"
+                                        name="contactFrame"
+                                        value={requestData.contactFrame}
+                                        onChange={event => handleFormChange(event)}
+                                        status={validator.contactFrame}
                                     />
                                 </Col>
                             </Row>
@@ -524,30 +660,25 @@ const Uploader = () => {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col md={4}>
+                                <Col md={6}>
                                     Length
                                     <Input
                                         placeholder="Length of Plate"
                                         name="lengthOfPlate"
                                         value={requestData.lengthOfPlate}
                                         onChange={event => handleFormChange(event)}
+                                        status={validator.lengthOfPlate}
                                     />
                                 </Col>
-                                <Col md={4}>
+                                <Col md={6}>
                                     Width
                                     <Input
                                         placeholder="Width of Plate"
                                         name="widthOfPlate"
                                         value={requestData.widthOfPlate}
-                                        onChange={event => handleFormChange(event)} />
-                                </Col>
-                                <Col md={4}>
-                                    Height
-                                    <Input
-                                        placeholder="Height of Plate"
-                                        name="heightOfPlate"
-                                        value={requestData.heightOfPlate}
-                                        onChange={event => handleFormChange(event)} />
+                                        onChange={event => handleFormChange(event)}
+                                        status={validator.widthOfPlate}
+                                    />
                                 </Col>
                             </Row>
                             <br />
@@ -561,7 +692,6 @@ const Uploader = () => {
                             </Button>
                         </form>
                         <br /><br /><br /><br /><br />
-
 
                     </Container>
                     {outputVisibility ?

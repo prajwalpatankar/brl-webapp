@@ -43,7 +43,7 @@ const Navbar = () => {
         <div className='navbar'>
             {isLoggedIn ?
                 <> 
-                    <Link to='/vectorOverlay'><Button className='navbar-button' >Home</Button></Link>
+                    <Link to='/'><Button className='navbar-button' >Home</Button></Link>
                     <Button onClick={handleLogout} className='navbar-button' >Log Out</Button>
                 </>
                 :

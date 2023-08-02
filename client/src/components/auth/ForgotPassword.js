@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
-import './Auth.css';
-import { Container } from 'react-bootstrap';
+import Footer from '../footer/Footer';
 
 const ForgotPassword = () => {
 
@@ -41,35 +39,39 @@ const ForgotPassword = () => {
     }
 
     return (
-        <div>
-            <Container fluid='true'>
-                <h4>Forgot Password</h4>
-                <form onSubmit={(event) => handleFormSubmit(event)}>
-                    <div class="form-group">
-                        <label for="email">Email address</label>
-                        <input type="email" class="form-control" name="email" id="email" aria-describedby="emailHelp" placeholder="Enter email" onChange={event => handleFormChange(event)} />
-                        <small id="emailHelp" class="form-text text-muted"></small>
-                    </div>
-                    <div>
-                        <Link to='/login'>Back to Login</Link>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send Email</button>
-                </form>
-                {submitSuccessful ?
-                    <>
-                        <p>Password reset email sent!</p>
-                        {showResendLink ?
-                            <div className='resend-email'>
-                                <p>Didn't get an email?&nbsp;</p>
-                                <p className='link' onClick={(event) => handleFormSubmit(event)}> Resend email</p>
+        <div className='w-screen h-screen'>
+            <div className='pt-[5%]'>
+                <div className='mx-auto md:w-[40rem] w-[30rem] bg-[#FFF] px-[2rem] py-[2rem] rounded-lg shadow-lg'>
+                    <p className='text-[2rem] text-purple-500 text-center'>Forgot Password</p>
+                    <form onSubmit={(event) => handleFormSubmit(event)}>
+                        <div className="flex flex-col my-[2rem]">
+                            <label for="email" className='text-purple-500 text-[1.2rem]'>Email address</label>
+                            <input type="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-purple-500 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" name="email" id="email" placeholder="example@email.com" onChange={event => handleFormChange(event)} />
+                        </div>
+                        {submitSuccessful ?
+                            <div className='my-[2rem]'>
+                                <p>Password reset email sent!</p>
+                                {showResendLink ?
+                                    <div className='flex'>
+                                        <p>Didn't get an email?&nbsp;</p>
+                                        <p className='text-purple-500 no-underline hover:cursor-pointer' onClick={(event) => handleFormSubmit(event)}> Resend email</p>
+                                    </div>
+                                    :
+                                    <></>
+                                }
                             </div>
                             :
-                            <></>
-                        }
-                    </>
-                    :
-                    <></>}
-            </Container>
+                            <></>}
+                        <div className='my-[2rem]'>
+                            <Link to='/login' className="text-purple-500 no-underline">Back to Log in</Link><br />
+                        </div>
+                        <button type="submit" className="px-[1.2rem] py-[0.5rem] bg-purple-500 text-white rounded-lg mr-[0.5rem]">Send Password Reset Link</button>
+                        <Link to='/'><button type="submit" className="px-[1.2rem] py-[0.5rem] border border-purple-500 text-pueple-500 rounded-lg text-purple-500">Home</button></Link>
+
+                    </form>
+                </div>
+            </div>
+            <Footer />
         </div>
     );
 };
