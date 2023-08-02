@@ -36,7 +36,7 @@ const LogIn = () => {
             .then((response, request) => {
                 setUserToken(response.data.access);
                 localStorage.setItem('token', response.data.access);
-                navigate('/vectorOverlay');
+                navigate('/');
             })
             .catch((error) => {
                 console.log(error)
