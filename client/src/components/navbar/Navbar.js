@@ -38,7 +38,7 @@ const Navbar = () => {
     }
 
     return (
-        <div className='fixed bg-[#000] w-screen h-[4.5rem] z-10'>
+        <div className='fixed bg-[#000] w-screen h-[4.5rem] z-20'>
             <div className='flex justify-between'>
                 <div>
                     <a href="https://dornsife.usc.edu/" target="_blank" rel="noreferrer"><img src="./assets/Donsife.jpg" alt="Dornsife_logo" className='h-[4.5rem]' /></a>

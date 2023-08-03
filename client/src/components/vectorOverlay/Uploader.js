@@ -58,6 +58,7 @@ const Uploader = () => {
 
     // State to display Output
     const [outputVisibility, setOutputVisibility] = useState(false);
+    const [videoToggle, setVideoToggle] = useState(false);
 
     // State to store the output
     const [inputUrl, setInputUrl] = useState('');
@@ -65,6 +66,8 @@ const Uploader = () => {
 
     // State to handle Modal visibility for crop modal
     const [isModalOpenCrop, setIsModalOpenCrop] = useState(false);
+    const [videoWidth, setVideoWidth] = useState(500);
+    const [videoHeight, setVideoHeight] = useState(500);
 
     // State to handle Modal visibility for plate end points
     const [isModalOpenEndPoint, setIsModalOpenEndPoint] = useState(false);
@@ -167,9 +170,19 @@ const Uploader = () => {
             if (generationType === 1) {
                 message.success("Video Loaded")
             }
-            canvas.width = video.videoWidth / 2;
-            canvas.height = video.videoHeight / 2;
-            canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth / 2, video.videoHeight / 2);
+            if (video.videoWidth > (0.75 * window.innerWidth)) {
+                canvas.width = video.videoWidth / 2;
+                canvas.height = video.videoHeight / 2;
+                setVideoWidth(video.videoWidth / 2 + 50);
+                setVideoHeight(video.videoHeight / 2 + 50);
+                canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth / 2, video.videoHeight / 2);
+            } else {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                setVideoWidth(video.videoWidth + 50);
+                setVideoHeight(video.videoHeight + 50);
+                canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth, video.videoHeight);
+            }
         };
     }
 
@@ -183,13 +196,17 @@ const Uploader = () => {
         const canvas = canvasRefCrop.current;
         if (!canvas) return;
 
+        const video = videoRef.current;
+
         const handleMouseDown = (event) => {
-            console.log("DOWN")
             const rect = canvas.getBoundingClientRect();
-            console.log("X", (event.clientX - rect.left) * 2)
-            console.log("Y", (event.clientY - rect.top) * 2)
-            setStartX((event.clientX - rect.left) * 2);
-            setStartY((event.clientY - rect.top) * 2);
+            if (video.videoWidth > (0.75 * window.innerWidth)) {
+                setStartX((event.clientX - rect.left) * 2);
+                setStartY((event.clientY - rect.top) * 2);
+            } else {
+                setStartX((event.clientX - rect.left));
+                setStartY((event.clientY - rect.top));
+            }
             setIsSelecting(true);
         };
 
@@ -206,9 +223,15 @@ const Uploader = () => {
             if (isSelecting) {
                 setIsSelecting(false);
                 const rect = canvas.getBoundingClientRect();
-                setEndX((event.clientX - rect.left) * 2);
-                setEndY((event.clientY - rect.top) * 2);
-                drawSelection((event.clientX - rect.left) * 2, (event.clientY - rect.top) * 2);
+                if (video.videoWidth > (0.75 * window.innerWidth)) {
+                    setEndX((event.clientX - rect.left) * 2);
+                    setEndY((event.clientY - rect.top) * 2);
+                    drawSelection((event.clientX - rect.left) * 2, (event.clientY - rect.top) * 2);
+                } else {
+                    setEndX((event.clientX - rect.left));
+                    setEndY((event.clientY - rect.top));
+                    drawSelection((event.clientX - rect.left), (event.clientY - rect.top));
+                }
             }
         };
 
@@ -225,11 +248,16 @@ const Uploader = () => {
 
 
     const drawSelection = (eX, eY) => {
+        const video = videoRef.current;
         const canvas = canvasRefCrop.current;
         const context = canvas.getContext('2d');
         context.strokeStyle = 'red';
         context.lineWidth = 2;
-        context.strokeRect(startX / 2, startY / 2, (eX - startX) / 2, (eY - startY) / 2);
+        if (video.videoWidth > (0.75 * window.innerWidth)) {
+            context.strokeRect(startX / 2, startY / 2, (eX - startX) / 2, (eY - startY) / 2);
+        } else {
+            context.strokeRect(startX, startY, (eX - startX), (eY - startY));
+        }
     };
 
     // Clear rectangle selections
@@ -500,6 +528,15 @@ const Uploader = () => {
                         type: 'success',
                         content: 'Vector overlay ready for download'
                     })
+                    setTimeout(() => {
+                        const outputSection = document.getElementById('output_section');
+                        if (outputSection) {
+                            outputSection.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                            });
+                        }
+                    }, 300);
                 })
                 .catch((error) => {
                     message.open({
@@ -511,10 +548,28 @@ const Uploader = () => {
         }
     };
 
+    // Toggle between input and output Video
+    const handleVideoToggle = () => {
+        setVideoToggle(!videoToggle);
+    }
+
+    // Download Vector Overlay
+    const downloadVideo = async () => {
+        const response = await fetch(outputUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'vector_overlay.mp4';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
     return (
         <>
             {showSpinner ? <Spin /> :
-                <div>
+                <div className="bg-[#eeeeee]">
                     <div className="w-[80%] mt-[2%] mx-auto bg-white shadow-md rounded-lg px-[2rem] py-[2rem]">
                         {/* div to pack video data into a request */}
                         <form enctype="multipart/form-data">
@@ -554,6 +609,8 @@ const Uploader = () => {
                                 open={isModalOpenCrop}
                                 onCancel={handleCancelCropVideo}
                                 closeIcon={false}
+                                width={videoWidth}
+                                height={videoHeight}
                                 footer={[
 
                                     <Button key="crop" onClick={event => clearCanvasSelection(event)}>Clear Selection</Button>,
@@ -740,14 +797,25 @@ const Uploader = () => {
 
                     </div>
                     {outputVisibility ?
-                        <div className="">
-                            <h2 className="">Output</h2>
-                            <h5>Input Video</h5>
-                            <iframe width="640" height="300" title='input_video' src={inputUrl} autoPlay muted loop>
-                            </iframe>
-                            <h5>Output Video</h5>
-                            <iframe width="640" height="300" title='input_video' src={outputUrl} autoPlay muted loop>
-                            </iframe>
+                        <div id="output_section" className="bg-white w-[95%] shadow-md mx-auto rounded-[2rem] my-[5rem] py-[3rem] px-[3rem]">
+                            <h2 className="">Results</h2>
+                            {videoToggle ?
+                                <div>
+                                    <button onClick={downloadVideo} className="text-white bg-purple-500 rounded-lg px-2 py-2 mr-2">Download Vector Overlay</button>
+                                    <button onClick={handleVideoToggle} className="text-white bg-purple-500 rounded-lg px-2 py-2">Show Vector Overlay</button>
+                                    <h5>Input Video</h5>
+                                    <iframe width="100%" height="600" title='input_video' src={inputUrl} autoPlay muted loop>
+                                    </iframe>
+                                </div>
+                                :
+                                <div>
+                                    <button onClick={downloadVideo} className="text-white bg-purple-500 rounded-lg px-2 py-2 mr-2">Download Vector Overlay</button>
+                                    <button onClick={handleVideoToggle} className="text-white bg-purple-500 rounded-lg px-2 py-2">Show Input Video</button>
+                                    <h5>Vector Overlay</h5>
+                                    <iframe width="100%" height="600" title='input_video' src={outputUrl} autoPlay muted loop>
+                                    </iframe>
+                                </div>
+                            }
                         </div>
                         :
                         <></>
