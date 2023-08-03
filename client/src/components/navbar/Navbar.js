@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Navbar.css';
 import { UserContext } from '../../contexts/UserContext';
 import { message } from 'antd';
 
@@ -14,7 +12,7 @@ const Navbar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // to handle redirects
-    const navigate = useNavigate ();
+    const navigate = useNavigate();
 
     // user Authentication
     useEffect(() => {
@@ -40,18 +38,25 @@ const Navbar = () => {
     }
 
     return (
-        <div className='navbar'>
-            {isLoggedIn ?
-                <> 
-                    <Link to='/'><Button className='navbar-button' >Home</Button></Link>
-                    <Button onClick={handleLogout} className='navbar-button' >Log Out</Button>
-                </>
-                :
-                <>
-                    <Link to='/login'><Button className='navbar-button' >Log In</Button></Link>
-                    <Link to='/signup'><Button className='navbar-button' >Sign Up</Button></Link>
-                </>
-            }
+        <div className='fixed bg-[#000] w-screen h-[4.5rem] z-10'>
+            <div className='flex justify-between'>
+                <div>
+                    <a href="https://dornsife.usc.edu/" target="_blank" rel="noreferrer"><img src="./assets/Donsife.jpg" alt="Dornsife_logo" className='h-[4.5rem]' /></a>
+                </div>
+                <div className='mt-[1rem] mr-[1rem]'>
+                    {isLoggedIn ?
+                        <>
+                            <Link to='/'><button className='w-[6rem] bg-purple-500 mx-[1rem] rounded-lg text-white h-[2.2rem]' >Home</button></Link>
+                            <button onClick={handleLogout} className='w-[6rem] bg-purple-500 mx-[1rem] rounded-lg text-white h-[2.2rem]' >Log Out</button>
+                        </>
+                        :
+                        <>
+                            <Link to='/login'><button className='w-[6rem] bg-purple-500 mx-[1rem] rounded-lg text-white h-[2.2rem]' >Log In</button></Link>
+                            <Link to='/signup'><button className='w-[6rem] bg-purple-500 mx-[1rem] rounded-lg text-white h-[2.2rem]' >Sign Up</button></Link>
+                        </>
+                    }
+                </div>
+            </div>
         </div>
     );
 };

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './VectorOverlay.css';
 import VideoInput from './VideoInput';
 import VideoOutput from './VideoOutput';
 

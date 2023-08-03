@@ -1,44 +1,19 @@
-import React, { useState } from 'react';
-// import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import React from 'react';
 import Uploader from './Uploader';
-import './VectorOverlay.css';
-import VideoPlayer from './VideoPlayer';
 import Navbar from '../navbar/Navbar';
-import { message } from 'antd';
 import Sidebar from '../sidebar/Sidebar';
 
 
 
 
 const VectorOverlay = () => {
-
-    // Constants
-    const navigate = useNavigate();
-
-    // State to handle visibilty of sections
-    const [descriptionVisible, setDescriptionVisible] = useState(true);
-
-    const handleTryButtonClick = () => {
-        if (localStorage.getItem('token') === '') {
-            message.warning('Please create an account to use Vector Overlay')
-            navigate('/login')
-
-        } else {
-            window.scrollTo({ top: 0, behavior: "instant" });
-            setDescriptionVisible(!descriptionVisible);
-        }
-    }
-
     return (
         <>
+            <Navbar />
             <Sidebar />
-            <div className='content'>
-                <div className='content vector-overlay'>
-                    <Navbar />
-                    <h3 className='page-title' >Vector Overlay</h3>
-                    {descriptionVisible ?
+            <div className='ml-[12rem] lg:ml-[12%] pt-[5rem] bg-[#eeeeee] h-screen'>
+                <h3 className='ml-[1rem] text-[3rem]' >Vector Overlay</h3>
+                {/* {descriptionVisible ?
                         <div>
                             <div className='project-description-container'>
                                 <p className='project-description-p1'>Some Description about the vector overlay project Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed in lectus ipsum. In et nunc auctor, placerat turpis sed, posuere mi. Ut quis nulla in mi accumsan tempus eget ac mi. Ut felis justo, eleifend vitm. Nunc fermentum vitae nisi id dapibus. Nam nec commodo dolor. Nulla id volutpat </p>
@@ -55,8 +30,8 @@ const VectorOverlay = () => {
                             <Button onClick={handleTryButtonClick}>Go Back</Button>
                             <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
                         </div>
-                    }
-                </div>
+                    } */}
+                <Uploader />
             </div>
         </>
     );

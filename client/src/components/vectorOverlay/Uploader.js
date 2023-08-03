@@ -3,10 +3,8 @@ import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
 import { Input, Button, Spin, Modal, message } from "antd";
-import { useNavigate } from 'react-router-dom';
-
-import "./VectorOverlay.css";
-import { Container, Row, Col } from "react-bootstrap";
+import { Link, useNavigate } from 'react-router-dom';
+import { Row, Col } from "react-bootstrap";
 
 const Uploader = () => {
 
@@ -129,6 +127,16 @@ const Uploader = () => {
 
     // --------------------------------------------------------------------
     // Methods
+
+    // Handle click on file inputs
+    const handleInputClick = (event, id) => {
+        event.preventDefault();
+        const inputElement = document.getElementById(id);
+        if (inputElement) {
+            inputElement.click();
+        }
+
+    }
 
     // Handle video file change
     const handleVideoFileChange = (event) => {
@@ -430,14 +438,14 @@ const Uploader = () => {
                 widthOfPlate: "error",
                 contactFrame: "",
             });
-        } else if (requestData.forcePlateNames.length !== endPointsX.length/4) {
+        } else if (requestData.forcePlateNames.length !== endPointsX.length / 4) {
             message.error("Invalid number of Force Plates")
-            message.info(`Please enter names of ${endPointsX.length/4} plate(s) as ${endPointsX.length} end points have been selected`)
+            message.info(`Please enter names of ${endPointsX.length / 4} plate(s) as ${endPointsX.length} end points have been selected`)
         } else {
             const key = 'updatable';
             message.open({
                 key,
-                type:'loading',
+                type: 'loading',
                 content: 'Processing your vector overlay',
                 duration: 20
             })
@@ -507,20 +515,35 @@ const Uploader = () => {
         <>
             {showSpinner ? <Spin /> :
                 <div>
-                    <Container className="form-container text-left">
-                        {/* Container to pack video data into a request */}
+                    <div className="w-[80%] mt-[2%] mx-auto bg-white shadow-md rounded-lg px-[2rem] py-[2rem]">
+                        {/* div to pack video data into a request */}
                         <form enctype="multipart/form-data">
                             {/* Upload video file */}
                             <Row>
                                 <Col md={12}>
-                                    Upload Your Video
-                                    <input
+                                    <p>
+                                        Upload Your Video
+                                    </p>
+                                    {/* <input
                                         type="file"
                                         placeholder="Upload you video"
                                         name="videoFile"
                                         ref={inputFileRef1}
                                         onChange={event => handleVideoFileChange(event)}
-                                    />
+                                    /> */}
+                                    <div className="relative">
+                                        <button onClick={(event) => { handleInputClick(event, 'video_input') }} class="absolute bg-white border-2 border-purple-500 text-pruple-500 w-[7.2rem] py-[0.3rem] rounded hover:cursor-pointer z-10">
+                                            Choose File
+                                        </button>
+                                        <input
+                                            type="file"
+                                            id="video_input"
+                                            className="z-5 placeholder-pl-10 pl-[1rem] pt-[0.2rem]"
+                                            name="videoFile"
+                                            ref={inputFileRef1}
+                                            onChange={event => handleVideoFileChange(event)}
+                                        />
+                                    </div>
                                 </Col>
                             </Row>
                             <br />
@@ -534,7 +557,7 @@ const Uploader = () => {
                                 footer={[
 
                                     <Button key="crop" onClick={event => clearCanvasSelection(event)}>Clear Selection</Button>,
-                                    <Button type="primary" key="back" onClick={handleCrop}>
+                                    <Button key="back" onClick={handleCrop}>
                                         Crop
                                     </Button>,
                                 ]}>
@@ -548,7 +571,7 @@ const Uploader = () => {
                                 footer={[
 
                                     <Button key="crop" onClick={event => clearEndPoints(event)}>Clear</Button>,
-                                    <Button type="primary" key="back" onClick={selectEndpoints}>
+                                    <Button key="back" onClick={selectEndpoints}>
                                         Done
                                     </Button>,
                                 ]}>
@@ -559,16 +582,33 @@ const Uploader = () => {
                             {/* Upload Force Plate details */}
                             <Row>
                                 <Col md={12}>
-                                    Upload Force Plate details
-                                    <input
+                                    <p>
+                                        Upload Force Plate details
+                                    </p>
+                                    {/* <input
                                         type="file"
                                         placeholder="Upload details of force plate"
                                         name="textFile"
                                         ref={inputFileRef2}
                                         onChange={event => handleFileChange(event)}
-                                    />
+                                    /> */}
+                                    <div className="relative">
+                                        <button onClick={(event) => { handleInputClick(event, 'force_input') }} class="absolute bg-white border-2 border-purple-500 text-pruple-500 w-[7.2rem] py-[0.3rem] rounded hover:cursor-pointer z-10">
+                                            Choose File
+                                        </button>
+                                        <input
+                                            type="file"
+                                            id="force_input"
+                                            className="z-5 placeholder-pl-10 pl-[1rem] pt-[0.2rem]"
+                                            placeholder="Upload details of force plate"
+                                            name="textFile"
+                                            ref={inputFileRef2}
+                                            onChange={event => handleFileChange(event)}
+                                        />
+                                    </div>
                                 </Col>
                             </Row>
+                            <br />
                             <br />
                             {/* Other required data */}
                             <Row>
@@ -628,7 +668,7 @@ const Uploader = () => {
                                         <Col xs={1}>
                                             <button
                                                 type="button"
-                                                className="btn btn-success force-plate-name-btn"
+                                                className="w-[2rem] h-[2rem] border-2 border-gray-400 text-gray-400 rounded-lg"
                                                 onClick={addForcePlate}
                                             >
                                                 +
@@ -640,7 +680,7 @@ const Uploader = () => {
                                         <Col xs={1}>
                                             <button
                                                 type="button"
-                                                className="btn btn-danger force-plate-name-btn"
+                                                className="w-[2rem] h-[2rem] border-2 border-red-400 text-red-400 rounded-lg"
                                                 onClick={() => {
                                                     deleteForcePlate(index);
                                                 }}
@@ -683,20 +723,25 @@ const Uploader = () => {
                             </Row>
                             <br />
                             {/* Submit Form */}
-                            <Button
-                                type="primary"
-                                className="upload-btn"
-                                onClick={(event) => handleUpload(event)}
-                            >
-                                Upload Video
-                            </Button>
+                            <div className="flex justify-between mt-[1rem]">
+                                <button
+                                    type=""
+                                    className="bg-purple-400 rounded-lg w-[10rem] h-[2rem] text-white"
+                                    onClick={(event) => handleUpload(event)}
+                                >
+                                    Get Vector Overlay
+                                </button>
+                                <div>
+                                    <Link to='/' className="mx-[1rem]"><button className="">Need help?</button></Link>
+                                    <Link to='/' className="mx-[1rem]"><button className="">How it works</button></Link>
+                                </div>
+                            </div>
                         </form>
-                        <br /><br /><br /><br /><br />
 
-                    </Container>
+                    </div>
                     {outputVisibility ?
-                        <div className="output-window">
-                            <h2 className="output-title">Output</h2>
+                        <div className="">
+                            <h2 className="">Output</h2>
                             <h5>Input Video</h5>
                             <iframe width="640" height="300" title='input_video' src={inputUrl} autoPlay muted loop>
                             </iframe>
