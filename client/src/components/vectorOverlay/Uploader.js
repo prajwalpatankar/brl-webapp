@@ -67,7 +67,6 @@ const Uploader = () => {
     // State to handle Modal visibility for crop modal
     const [isModalOpenCrop, setIsModalOpenCrop] = useState(false);
     const [videoWidth, setVideoWidth] = useState(500);
-    const [videoHeight, setVideoHeight] = useState(500);
 
     // State to handle Modal visibility for plate end points
     const [isModalOpenEndPoint, setIsModalOpenEndPoint] = useState(false);
@@ -174,13 +173,11 @@ const Uploader = () => {
                 canvas.width = video.videoWidth / 2;
                 canvas.height = video.videoHeight / 2;
                 setVideoWidth(video.videoWidth / 2 + 50);
-                setVideoHeight(video.videoHeight / 2 + 50);
                 canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth / 2, video.videoHeight / 2);
             } else {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 setVideoWidth(video.videoWidth + 50);
-                setVideoHeight(video.videoHeight + 50);
                 canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, video.videoWidth, video.videoHeight);
             }
         };
@@ -287,9 +284,10 @@ const Uploader = () => {
 
         video.oncanplay = () => {
             // Set canvas dimensions to match video
-            canvas.width = endX - startX;
-            canvas.height = endY - startY;
-            canvas.getContext('2d').drawImage(video, startX, startY, (endX - startX), (endY - startY), 0, 0, (endX - startX), (endY - startY));
+            canvas.width = (endX - startX) * 3;
+            canvas.height = (endY - startY) * 3;
+            setVideoWidth(((endX - startX) * 3) + 50);
+            canvas.getContext('2d').drawImage(video, startX, startY, (endX - startX), (endY - startY), 0, 0, (endX - startX) * 3, (endY - startY) * 3);
         };
     }
 
@@ -301,8 +299,8 @@ const Uploader = () => {
             const rect = canvas.getBoundingClientRect();
             const context = canvas.getContext('2d');
             context.strokeRect(event.clientX - rect.left, event.clientY - rect.top, 2, 2);
-            setEndPointsX([...endPointsX, (startX + event.clientX - rect.left)]);
-            setEndPointsY([...endPointsY, (startY + event.clientY - rect.top)]);
+            setEndPointsX([...endPointsX, (startX + (event.clientX - rect.left) / 3)]);
+            setEndPointsY([...endPointsY, (startY + (event.clientY - rect.top) / 3)]);
         };
 
         canvas.addEventListener('mousedown', handleMouseDown);
@@ -315,6 +313,12 @@ const Uploader = () => {
 
     // Canvas Modal for End Point
     const handleCancelEndPoint = () => {
+        const video = videoRef.current;
+        if (video.videoWidth > (0.75 * window.innerWidth)) {
+            setVideoWidth(video.videoWidth / 2 + 50);
+        } else {
+            setVideoWidth(video.videoWidth + 50);
+        }
         setIsModalOpenEndPoint(false);
         setIsModalOpenCrop(true);
         setEndPointsX([]);
@@ -579,13 +583,6 @@ const Uploader = () => {
                                     <p>
                                         Upload Your Video
                                     </p>
-                                    {/* <input
-                                        type="file"
-                                        placeholder="Upload you video"
-                                        name="videoFile"
-                                        ref={inputFileRef1}
-                                        onChange={event => handleVideoFileChange(event)}
-                                    /> */}
                                     <div className="relative">
                                         <button onClick={(event) => { handleInputClick(event, 'video_input') }} class="absolute bg-white border-2 border-purple-500 text-pruple-500 w-[7.2rem] py-[0.3rem] rounded hover:cursor-pointer z-10">
                                             Choose File
@@ -610,7 +607,6 @@ const Uploader = () => {
                                 onCancel={handleCancelCropVideo}
                                 closeIcon={false}
                                 width={videoWidth}
-                                height={videoHeight}
                                 footer={[
 
                                     <Button key="crop" onClick={event => clearCanvasSelection(event)}>Clear Selection</Button>,
@@ -621,10 +617,11 @@ const Uploader = () => {
                                 <canvas ref={canvasRefCrop} style={{ display: "inline" }}></canvas>
                             </Modal>
                             <Modal
-                                title="Please Select the End Points of Force Plate by double clicking"
+                                title="Please Select the End Points of Force Plate by clicking on the canvas"
                                 open={isModalOpenEndPoint}
                                 onCancel={handleCancelEndPoint}
                                 closeIcon={false}
+                                width={videoWidth}
                                 footer={[
 
                                     <Button key="crop" onClick={event => clearEndPoints(event)}>Clear</Button>,
@@ -642,13 +639,6 @@ const Uploader = () => {
                                     <p>
                                         Upload Force Plate details
                                     </p>
-                                    {/* <input
-                                        type="file"
-                                        placeholder="Upload details of force plate"
-                                        name="textFile"
-                                        ref={inputFileRef2}
-                                        onChange={event => handleFileChange(event)}
-                                    /> */}
                                     <div className="relative">
                                         <button onClick={(event) => { handleInputClick(event, 'force_input') }} class="absolute bg-white border-2 border-purple-500 text-pruple-500 w-[7.2rem] py-[0.3rem] rounded hover:cursor-pointer z-10">
                                             Choose File
