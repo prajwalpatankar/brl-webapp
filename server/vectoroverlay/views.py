@@ -117,10 +117,11 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
 
           # Set output path
           file1_vid_return = file1_video[:-4]+ '_OL.mp4'
-          file1_vid_new = file1_vid_return[30:]
-          file1_vid_new = os.path.join(UPLOADS, file1_vid_new)
+          trunc_len = int(os.environ.get('TRUNCATE_LEN'))
+          file1_vid_op = file1_vid_return[trunc_len:]
+          file1_vid_op = os.path.join(UPLOADS, file1_vid_op)
 
           # Call vector Overlay
-          vectoroverlay(file1_video, file1_vid_new, data_pix_f1, contactframe_f1, samp_force=samp, samp_video=sampvid_f1, dispthresh=2)
+          vectoroverlay(file1_video, file1_vid_op, data_pix_f1, contactframe_f1, samp_force=samp, samp_video=sampvid_f1, dispthresh=2)
           
           return Response({'videoFileInput': file1_video, 'videoFileOutput': file1_vid_return}, status=status.HTTP_201_CREATED, headers=headers)
