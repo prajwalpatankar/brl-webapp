@@ -8,6 +8,8 @@ from .models import *
 
 import pandas as pd
 import os
+import dotenv
+dotenv.load_dotenv()
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA = os.path.join(BASE_DIR, 'media')
