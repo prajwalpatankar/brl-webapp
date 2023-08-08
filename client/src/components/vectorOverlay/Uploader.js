@@ -546,7 +546,7 @@ const Uploader = () => {
                     message.open({
                         key,
                         type: 'error',
-                        content: 'Error in the inputs provided. Could generate a vector overlay'
+                        content: "Cannot Process this video. Couldn't generate a vector overlay"
                     })
                 })
         }
