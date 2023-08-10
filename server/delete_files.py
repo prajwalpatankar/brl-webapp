@@ -9,7 +9,7 @@ UPLOADS = os.path.join(MEDIA, 'uploads')
 def delete_old_files():
     """Deletes files that are older than 1 day."""
     today = datetime.datetime.today()
-    one_day_ago = today - datetime.timedelta(minutes=10)
+    one_day_ago = today - datetime.timedelta(minutes=3)
 
     for file in os.listdir("media/uploads"):
         file_path = os.path.join("media/uploads", file)
