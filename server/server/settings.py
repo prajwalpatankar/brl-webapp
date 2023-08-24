@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [
 
 CORS_ORIGIN_WHITELIST = [
 'http://localhost:3000',
-'https://uscbrl.netlify.app/',
+'https://uscbrl.netlify.app',
 ]
 
 CORS_ALLOW_CREDENTIALS = True

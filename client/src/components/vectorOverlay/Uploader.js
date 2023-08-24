@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
-import { Input, Button, Spin, Modal, message } from "antd";
+import { Input, Button, Spin, Modal, message, Select } from "antd";
 import { Link, useNavigate } from 'react-router-dom';
 import { Row, Col } from "react-bootstrap";
 
@@ -40,6 +40,8 @@ const Uploader = () => {
 
     // State to handle dynamic force plate list 
     const [forcePlateList, setForcePlateList] = useState([""]);
+    const [flipList, setFlipList] = useState([]);
+    const [flipListSum, setFlipListSum] = useState([0]);
 
     //   State to store Request Data
     const [requestData, setRequestData] = useState({
@@ -47,7 +49,10 @@ const Uploader = () => {
         videoFile: [],
         textFile: [],
         samplingRate: "",
+        mode: "",
+        bodyWeight: "",
         bodyWeightPerMeter: "",
+        flips: ['0'],
         forcePlateNames: [],
         lengthOfPlate: "",
         widthOfPlate: "",
@@ -81,12 +86,42 @@ const Uploader = () => {
         videoFile: "",
         textFile: "",
         samplingRate: "",
+        mode: "",
+        bodyWeight: "",
         bodyWeightPerMeter: "",
         forcePlateNames: "",
         lengthOfPlate: "",
         widthOfPlate: "",
         contactFrame: "",
     });
+
+    const flipOptions =
+        [
+            {
+                value: 1,
+                label: 'Fx',
+            },
+            {
+                value: 2,
+                label: 'Fy',
+            },
+            {
+                value: 4,
+                label: 'Ax',
+            },
+            {
+                value: 8,
+                label: 'Ay',
+            },
+        ]
+
+    const modeOptions = 
+    [
+        {
+            value: 'combine',
+            label: 'Combine',
+        },
+    ]
 
     // --------------------------------------------------------------------
     // Initializers
@@ -359,20 +394,32 @@ const Uploader = () => {
         //   return;
         // }
         setForcePlateList([...forcePlateList, ""]);
+        setFlipList([...flipList, []]);
+        setFlipListSum([...flipListSum, 0]);
     };
 
     // Remove Row from Force Plate List
     const deleteForcePlate = (index) => {
         const values = [...forcePlateList];
+        const flipValues = [...flipList];
+        const flipSum = [...flipListSum];
         values.splice(index, 1);
+        flipValues.splice(index, 1);
+        flipSum.splice(index, 1);
         setForcePlateList(values);
-        setRequestData({ ...requestData, forcePlateNames: values })
+        setFlipList(flipValues);
+        setFlipListSum(flipSum);
+        setRequestData({ ...requestData, flips: flipSum, forcePlateNames: values })
     };
 
     // Handle form data change (Generic)
     const handleFormChange = (event) => {
         setRequestData({ ...requestData, [event.target.name]: event.target.value });
-        // console.log(requestData);
+    }
+
+    //Handle Vector overlay Mode change
+    const handleModeChange = (value) => {
+        setRequestData({...requestData, mode:value});
     }
 
 
@@ -384,11 +431,23 @@ const Uploader = () => {
         setRequestData({ ...requestData, forcePlateNames: values })
     }
 
+    const handleFormChangeFlip = (value, index) => {
+        const values = [...flipList];
+        const flipSum = [...flipListSum]
+        values[index] = value;
+        setFlipList(values);
+        flipSum[index] = value.reduce((a, b) => a + b, 0).toString();
+        setFlipListSum(flipSum);
+        setRequestData({ ...requestData, flips: flipSum })
+    }
+
     // Submit Form and Send request
     const handleUpload = (e) => {
         e.preventDefault();
-
+        console.log(flipListSum)
         console.log(requestData);
+
+        setOutputVisibility(false);
 
 
         if (requestData.videoFile.length === 0) {
@@ -396,6 +455,8 @@ const Uploader = () => {
                 videoFile: "error",
                 textFile: "",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -408,6 +469,8 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "error",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -420,6 +483,34 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "",
                 samplingRate: "error",
+                mode: "",
+                bodyWeight: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+        } else if (requestData.mode === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                mode: "error",
+                bodyWeight: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+            });
+        } else if (requestData.bodyWeight === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                mode: "",
+                bodyWeight: "error",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -431,6 +522,8 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "error",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -442,6 +535,8 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -453,6 +548,8 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "error",
@@ -464,6 +561,8 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -485,6 +584,8 @@ const Uploader = () => {
                 videoFile: "",
                 textFile: "",
                 samplingRate: "",
+                mode: "",
+                bodyWeight: "",
                 bodyWeightPerMeter: "",
                 forcePlateNames: "",
                 lengthOfPlate: "",
@@ -511,7 +612,10 @@ const Uploader = () => {
                     //     videoFile: [],
                     //     textFile: [],
                     //     samplingRate: "",
+                    //     mode: "",
+                    //     bodyWeight: "",
                     //     bodyWeightPerMeter: "",
+                    //     flips: [],
                     //     forcePlateNames: [],
                     //     lengthOfPlate: "",
                     //     widthOfPlate: "",
@@ -520,6 +624,8 @@ const Uploader = () => {
                     //     endPointsY: [],
                     // })
                     // setForcePlateList([""]);
+                    // setFlipList([""]);
+                    // setFlipListSum([0]);
                     setOutputVisibility(true);
                     // if (inputFileRef1.current) {
                     //     inputFileRef1.current.value = null;
@@ -659,7 +765,7 @@ const Uploader = () => {
                             <br />
                             {/* Other required data */}
                             <Row>
-                                <Col md={4}>
+                                <Col md={3}>
                                     Sampling Rate
                                     <Input
                                         type="number"
@@ -671,7 +777,19 @@ const Uploader = () => {
                                     />
                                 </Col>
 
-                                <Col md={4}>
+                                <Col md={3}>
+                                    Body Weight
+                                    <Input
+                                        type="number"
+                                        step={0.01}
+                                        placeholder="kg/m"
+                                        name="bodyWeight"
+                                        value={requestData.bodyWeight}
+                                        onChange={event => handleFormChange(event)}
+                                        status={validator.bodyWeight}
+                                    />
+                                </Col>
+                                <Col md={3}>
                                     Body Weight per meter (kg/m)
                                     <Input
                                         type="number"
@@ -683,7 +801,7 @@ const Uploader = () => {
                                         status={validator.bodyWeightPerMeter}
                                     />
                                 </Col>
-                                <Col md={4}>
+                                <Col md={3}>
                                     Contact Frame
                                     <Input
                                         type="number"
@@ -699,17 +817,33 @@ const Uploader = () => {
                             <br />
                             <br />
                             {/* Dynamic Force plates names */}
-                            <Row>&nbsp;&nbsp;&nbsp;Names of Force Plates</Row>
+                            <Row>
+                                <Col xs={6}>
+                                    Names of Force Plates
+                                </Col>
+                                <Col>
+                                    Select Flip
+                                </Col>
+                            </Row>
                             {forcePlateList.map((forcePlate, index) => (
                                 <Row key={index}>
-                                    <Col xs={11}>
+                                    <Col xs={6}>
                                         <Input
                                             placeholder={`Name of Force Plate ${index + 1}`}
                                             onChange={event => { handleFormChangeForcePlate(event, index) }}
                                             value={forcePlate}
                                         />
-                                        <br />
-                                        <br />
+                                    </Col>
+                                    <Col xs={5}>
+                                        <Select
+                                            mode="multiple"
+                                            allowClear
+                                            style={{ width: '100%' }}
+                                            placeholder={`Flip for Force Plate ${index + 1}`}
+                                            onChange={value => handleFormChangeFlip(value, index)}
+                                            options={flipOptions}
+                                            value={flipList[index]}
+                                        />
                                     </Col>
                                     {index === 0 ? (
                                         <Col xs={1}>
@@ -742,13 +876,8 @@ const Uploader = () => {
                             ))}
                             {/* Dimesion Data */}
                             <Row>
-                                <Col md={12}>
-                                    Plate Dimensions <br />
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    Length
+                                <Col md={3}>
+                                    Length of Plate
                                     <Input
                                         placeholder="Length of Plate"
                                         name="lengthOfPlate"
@@ -757,14 +886,24 @@ const Uploader = () => {
                                         status={validator.lengthOfPlate}
                                     />
                                 </Col>
-                                <Col md={6}>
-                                    Width
+                                <Col md={3}>
+                                    Width of Plate
                                     <Input
                                         placeholder="Width of Plate"
                                         name="widthOfPlate"
                                         value={requestData.widthOfPlate}
                                         onChange={event => handleFormChange(event)}
                                         status={validator.widthOfPlate}
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    Mode
+                                    <Select
+                                        style={{ width: '100%' }}
+                                        placeholder={"Select Vector Overlay Mode"}
+                                        options={modeOptions}
+                                        onChange={handleModeChange}
+                                        status={validator.mode}
                                     />
                                 </Col>
                             </Row>
@@ -794,7 +933,7 @@ const Uploader = () => {
                                     <button onClick={downloadVideo} className="text-white bg-purple-500 rounded-lg px-2 py-2 mr-2">Download Vector Overlay</button>
                                     <button onClick={handleVideoToggle} className="text-white bg-purple-500 rounded-lg px-2 py-2">Show Vector Overlay</button>
                                     <h5>Input Video</h5>
-                                    <iframe width="100%" height="600" title='input_video' src={inputUrl} autoPlay muted loop>
+                                    <iframe width="100%" height="600" title='input_video' src={inputUrl} key={inputUrl} autoPlay muted loop>
                                     </iframe>
                                 </div>
                                 :
@@ -802,7 +941,7 @@ const Uploader = () => {
                                     <button onClick={downloadVideo} className="text-white bg-purple-500 rounded-lg px-2 py-2 mr-2">Download Vector Overlay</button>
                                     <button onClick={handleVideoToggle} className="text-white bg-purple-500 rounded-lg px-2 py-2">Show Input Video</button>
                                     <h5>Vector Overlay</h5>
-                                    <iframe width="100%" height="600" title='input_video' src={outputUrl} autoPlay muted loop>
+                                    <iframe width="100%" height="600" title='input_video' src={outputUrl} key={outputUrl} autoPlay muted loop>
                                     </iframe>
                                 </div>
                             }
