@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
-import { Input, Button, Spin, Modal, message, Select } from "antd";
+import { Input, Button, Spin, Modal, message, Select, Tour } from "antd";
 import { Link, useNavigate } from 'react-router-dom';
 import { Row, Col } from "react-bootstrap";
 
@@ -82,6 +82,7 @@ const Uploader = () => {
     const [endPointsX, setEndPointsX] = useState([]);
     const [endPointsY, setEndPointsY] = useState([]);
 
+    //state to validate input and display error
     const [validator, setValidator] = useState({
         videoFile: "",
         textFile: "",
@@ -95,6 +96,10 @@ const Uploader = () => {
         contactFrame: "",
     });
 
+    //state to display tour
+    const [isTourOpen, setisTourOpen] = useState(false);
+
+    //flip dropdown options
     const flipOptions =
         [
             {
@@ -115,11 +120,42 @@ const Uploader = () => {
             },
         ]
 
-    const modeOptions = 
-    [
+    // mode dropdown options
+    const modeOptions =
+        [
+            {
+                value: 'combine',
+                label: 'Combine',
+            },
+            {
+                value: 'ind',
+                label: 'Individual',
+            },
+        ]
+
+    // steps for tour
+    const tourSteps = [
         {
-            value: 'combine',
-            label: 'Combine',
+            title: 'Upload Video',
+            description: 'Upload your recorded video here',
+            cover: (
+                <img
+                    alt="tour.png"
+                    src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
+                />
+            ),
+            target: () => inputFileRef1.current,
+        },
+        {
+            title: 'Upload Force File',
+            description: 'Upload your pre-processed Force file',
+            cover: (
+                <img
+                    alt="tour.png"
+                    src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
+                />
+            ),
+            target: () => inputFileRef2.current,
         },
     ]
 
@@ -417,9 +453,27 @@ const Uploader = () => {
         setRequestData({ ...requestData, [event.target.name]: event.target.value });
     }
 
+    const handleFormChangeNotNegativeIntegers = (event) => {
+        if (event.target.value[0] === "-") {
+            setRequestData({ ...requestData, [event.target.name]: "" })
+        } else {
+            setRequestData({ ...requestData, [event.target.name]: event.target.value.split('.')[0] })
+        }
+    }
+
+    const handleFormChangeNotNegativeFloat = (event) => {
+        if (event.target.value[0] === "-") {
+            setRequestData({ ...requestData, [event.target.name]: "" })
+        } else {
+            setRequestData({ ...requestData, [event.target.name]: event.target.value })
+        }
+    }
+
+
+
     //Handle Vector overlay Mode change
     const handleModeChange = (value) => {
-        setRequestData({...requestData, mode:value});
+        setRequestData({ ...requestData, mode: value });
     }
 
 
@@ -444,10 +498,10 @@ const Uploader = () => {
     // Submit Form and Send request
     const handleUpload = (e) => {
         e.preventDefault();
-        console.log(flipListSum)
         console.log(requestData);
 
         setOutputVisibility(false);
+
 
 
         if (requestData.videoFile.length === 0) {
@@ -478,7 +532,7 @@ const Uploader = () => {
                 contactFrame: "",
             });
             message.error("Please upload a force file")
-        } else if (requestData.samplingRate === "") {
+        } else if (requestData.samplingRate === "" || requestData.samplingRate <= 0) {
             setValidator({
                 videoFile: "",
                 textFile: "",
@@ -504,7 +558,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
             });
-        } else if (requestData.bodyWeight === "") {
+        } else if (requestData.bodyWeight === "" || requestData.bodyWeight <= 0) {
             setValidator({
                 videoFile: "",
                 textFile: "",
@@ -517,7 +571,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
             });
-        } else if (requestData.bodyWeightPerMeter === "") {
+        } else if (requestData.bodyWeightPerMeter === "" || requestData.bodyWeightPerMeter <= 0) {
             setValidator({
                 videoFile: "",
                 textFile: "",
@@ -530,7 +584,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
             });
-        } else if (requestData.contactFrame === "") {
+        } else if (requestData.contactFrame === "" || requestData.contactFrame <= 0) {
             setValidator({
                 videoFile: "",
                 textFile: "",
@@ -543,7 +597,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "error",
             });
-        } else if (requestData.lengthOfPlate === "") {
+        } else if (requestData.lengthOfPlate === "" || requestData.lengthOfPlate <= 0) {
             setValidator({
                 videoFile: "",
                 textFile: "",
@@ -556,7 +610,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
             });
-        } else if (requestData.widthOfPlate === "") {
+        } else if (requestData.widthOfPlate === "" || requestData.widthOfPlate <= 0) {
             setValidator({
                 videoFile: "",
                 textFile: "",
@@ -772,8 +826,10 @@ const Uploader = () => {
                                         placeholder="Sampling Rate in Hz"
                                         name="samplingRate"
                                         value={requestData.samplingRate}
-                                        onChange={event => handleFormChange(event)}
+                                        onChange={event => handleFormChangeNotNegativeIntegers(event)}
                                         status={validator.samplingRate}
+                                        min={1}
+                                        step={1}
                                     />
                                 </Col>
 
@@ -781,36 +837,39 @@ const Uploader = () => {
                                     Body Weight
                                     <Input
                                         type="number"
-                                        step={0.01}
-                                        placeholder="kg/m"
+                                        placeholder="N"
                                         name="bodyWeight"
                                         value={requestData.bodyWeight}
-                                        onChange={event => handleFormChange(event)}
+                                        onChange={event => handleFormChangeNotNegativeIntegers(event)}
                                         status={validator.bodyWeight}
+                                        min={1}
+                                        step={1}
                                     />
                                 </Col>
                                 <Col md={3}>
                                     Body Weight per meter (kg/m)
                                     <Input
                                         type="number"
-                                        step={0.01}
-                                        placeholder="kg/m"
+                                        placeholder="N/m"
                                         name="bodyWeightPerMeter"
                                         value={requestData.bodyWeightPerMeter}
-                                        onChange={event => handleFormChange(event)}
+                                        onChange={event => handleFormChangeNotNegativeIntegers(event)}
                                         status={validator.bodyWeightPerMeter}
+                                        min={1}
+                                        step={1}
                                     />
                                 </Col>
                                 <Col md={3}>
                                     Contact Frame
                                     <Input
                                         type="number"
-                                        step={1}
                                         placeholder="Contact Frame"
                                         name="contactFrame"
                                         value={requestData.contactFrame}
-                                        onChange={event => handleFormChange(event)}
+                                        onChange={event => handleFormChangeNotNegativeIntegers(event)}
                                         status={validator.contactFrame}
+                                        min={1}
+                                        step={1}
                                     />
                                 </Col>
                             </Row>
@@ -880,20 +939,26 @@ const Uploader = () => {
                                     Length of Plate
                                     <Input
                                         placeholder="Length of Plate"
+                                        type="number"
                                         name="lengthOfPlate"
                                         value={requestData.lengthOfPlate}
-                                        onChange={event => handleFormChange(event)}
+                                        onChange={event => handleFormChangeNotNegativeFloat(event)}
                                         status={validator.lengthOfPlate}
+                                        min={0}
+                                        step={0.1}
                                     />
                                 </Col>
                                 <Col md={3}>
                                     Width of Plate
                                     <Input
                                         placeholder="Width of Plate"
+                                        type="number"
                                         name="widthOfPlate"
                                         value={requestData.widthOfPlate}
-                                        onChange={event => handleFormChange(event)}
+                                        onChange={event => handleFormChangeNotNegativeFloat(event)}
                                         status={validator.widthOfPlate}
+                                        min={0}
+                                        step={0.1}
                                     />
                                 </Col>
                                 <Col md={6}>
@@ -909,20 +974,19 @@ const Uploader = () => {
                             </Row>
                             <br />
                             {/* Submit Form */}
-                            <div className="flex justify-between mt-[1rem]">
-                                <button
-                                    type=""
-                                    className="bg-purple-400 rounded-lg w-[10rem] h-[2rem] text-white"
-                                    onClick={(event) => handleUpload(event)}
-                                >
-                                    Get Vector Overlay
-                                </button>
-                                <div>
-                                    <Link to='/' className="mx-[1rem]"><button className="">Need help?</button></Link>
-                                    <Link to='/' className="mx-[1rem]"><button className="">How it works</button></Link>
-                                </div>
-                            </div>
+                            {/* <div className="flex justify-between mt-[1rem]"> */}
+                            <button
+                                type=""
+                                className="bg-purple-400 rounded-lg w-[10rem] h-[2rem] text-white border-none"
+                                onClick={(event) => handleUpload(event)}
+                            >
+                                Get Vector Overlay
+                            </button>
                         </form>
+                        <div className="flex justify-end">
+                            <button type="primary" className="border-none mx-1 bg-transparent text-purple-400" onClick={() => setisTourOpen(true)}>Need help?</button>
+                            <button type="primary" className="border-none mx-1 bg-transparent text-purple-400">How it works</button>
+                        </div>
 
                     </div>
                     {outputVisibility ?
@@ -951,6 +1015,7 @@ const Uploader = () => {
                     }
                 </div>
             }
+            <Tour open={isTourOpen} onClose={() => setisTourOpen(false)} steps={tourSteps} nextButtonProps={{type: "link"}} previousButtonProps={{type: "primary"}} />
         </>
     );
 };

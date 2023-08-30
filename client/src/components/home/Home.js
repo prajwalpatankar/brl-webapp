@@ -4,8 +4,10 @@ import Footer from '../footer/Footer';
 import axios from 'axios';
 import { UserContext } from '../../contexts/UserContext';
 import { Link } from 'react-router-dom';
+import { SidebarContext } from '../../contexts/SideBarContext';
 
 const Home = () => {
+    
 
     const { userToken } = useContext(UserContext);
 
@@ -26,6 +28,12 @@ const Home = () => {
             })
     }, [userToken])
 
+    const {setActiveTab} = useContext(SidebarContext);
+
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+    }
+
     return (
         <div className='text-center bg-[#f8f8f8] w-screen h-screen'>
             <Navbar />
@@ -35,10 +43,10 @@ const Home = () => {
                     <div>
                         <p className='mt-[3rem]'>Select Module</p>
                         <div className='flex flex-column'>
-                            <Link to='/vectorOverlay'><button className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Vector Overlay</button></Link>
-                            <Link to='/'><button className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Module 2</button></Link>
-                            <Link to='/'><button className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Module 3</button></Link>
-                            <Link to='/'><button className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Module 4</button></Link>
+                            <Link to='/vectorOverlay'><button onClick={handleTabChange('VectorOverlay')} className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Vector Overlay</button></Link>
+                            <Link to='/'><button onClick={handleTabChange('')} className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Module 2</button></Link>
+                            <Link to='/'><button onClick={handleTabChange('')} className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Module 3</button></Link>
+                            <Link to='/'><button onClick={handleTabChange('')} className='my-[0.7rem] h-[4rem] w-[15rem] border-2 border-purple-500 rounded-lg text-[1.2rem] text-purple-500' >Module 4</button></Link>
                         </div>
                     </div>
                     :

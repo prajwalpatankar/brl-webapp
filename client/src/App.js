@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Importing Contexts
 import { UserContext } from './contexts/UserContext';
+import { SidebarContext } from './contexts/SideBarContext';
 
 // Importing components
 // import Sidebar from './components/sidebar/Sidebar'
@@ -29,24 +30,28 @@ function App() {
 
   const [userToken, setUserToken] = useState("");
 
+  const [activeTab, setActiveTab] = useState('home');
+
   return (
     <div className='App'>
       <UserContext.Provider value={{ userDetails, setUserDetails, userToken, setUserToken }} >
-        <BrowserRouter>
-          <div className=''>
-            <Routes>
-              {/* Mention all Routes Here */}
+        <SidebarContext.Provider value={{ activeTab, setActiveTab }} >
+          <BrowserRouter>
+            <div className=''>
+              <Routes>
+                {/* Mention all Routes Here */}
 
-              {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
-              <Route exact path="/vectorOverlay" element={<VectorOverlay />} />
-              <Route exact path="/" element={<Home />} />
+                {/* Change path of Vector Overlay to /vectorOverlay and Home to / if a login system is developed */}
+                <Route exact path="/vectorOverlay" element={<VectorOverlay />} />
+                <Route exact path="/" element={<Home />} />
 
-              <Route exact path="/login" element={<LogIn />} />
-              <Route exact path="/signup" element={<SignUp />} />
-              <Route exact path="/forgotPassword" element={<ForgotPassword />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
+                <Route exact path="/login" element={<LogIn />} />
+                <Route exact path="/signup" element={<SignUp />} />
+                <Route exact path="/forgotPassword" element={<ForgotPassword />} />
+              </Routes>
+            </div>
+          </BrowserRouter>
+        </SidebarContext.Provider>
       </UserContext.Provider>
     </div>
   );
