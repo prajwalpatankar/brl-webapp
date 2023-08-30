@@ -3,7 +3,7 @@ import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
 import { Input, Button, Spin, Modal, message, Select, Tour } from "antd";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Row, Col } from "react-bootstrap";
 
 const Uploader = () => {
@@ -12,6 +12,11 @@ const Uploader = () => {
     // Refs
     const inputFileRef1 = useRef(null);
     const inputFileRef2 = useRef(null);
+    const firsRowRef = useRef(null);
+    const flipRef = useRef(null);
+    const addButtonRef = useRef(null);
+    const modeRef = useRef(null);
+    const submitButtonRef = useRef(null);
     const videoRef = useRef(null);
     const canvasRefCrop = useRef(null);
     const canvasRefEndPoint = useRef(null);
@@ -156,6 +161,31 @@ const Uploader = () => {
                 />
             ),
             target: () => inputFileRef2.current,
+        },
+        {
+            title: 'Input Details',
+            description: 'Add Details About your vector overlay',
+            target: () => firsRowRef.current,
+        },
+        {
+            title: 'Select Flips',
+            description: 'Select any number of flips you want for your vector overlay',
+            target: () => flipRef.current,
+        },
+        {
+            title: 'Add more force plate details',
+            description: 'Click this button to add names of more force plates',
+            target: () => addButtonRef.current,
+        },
+        {
+            title: 'Select Mode',
+            description: 'Select if you want a combined or an individual vector overlay',
+            target: () => modeRef.current,
+        },
+        {
+            title: 'Submit!',
+            description: 'Finally, click this button to submit your request. If all details are correct, you will be able to download your vector overlay',
+            target: () => submitButtonRef.current,
         },
     ]
 
@@ -449,9 +479,9 @@ const Uploader = () => {
     };
 
     // Handle form data change (Generic)
-    const handleFormChange = (event) => {
-        setRequestData({ ...requestData, [event.target.name]: event.target.value });
-    }
+    // const handleFormChange = (event) => {
+    //     setRequestData({ ...requestData, [event.target.name]: event.target.value });
+    // }
 
     const handleFormChangeNotNegativeIntegers = (event) => {
         if (event.target.value[0] === "-") {
@@ -818,7 +848,7 @@ const Uploader = () => {
                             <br />
                             <br />
                             {/* Other required data */}
-                            <Row>
+                            <Row ref={firsRowRef}>
                                 <Col md={3}>
                                     Sampling Rate
                                     <Input
@@ -893,7 +923,7 @@ const Uploader = () => {
                                             value={forcePlate}
                                         />
                                     </Col>
-                                    <Col xs={5}>
+                                    <Col xs={5} ref={flipRef}>
                                         <Select
                                             mode="multiple"
                                             allowClear
@@ -910,6 +940,7 @@ const Uploader = () => {
                                                 type="button"
                                                 className="w-[2rem] h-[2rem] border-2 border-gray-400 text-gray-400 rounded-lg"
                                                 onClick={addForcePlate}
+                                                ref={addButtonRef}
                                             >
                                                 +
                                             </button>
@@ -961,7 +992,7 @@ const Uploader = () => {
                                         step={0.1}
                                     />
                                 </Col>
-                                <Col md={6}>
+                                <Col md={6} ref={modeRef}>
                                     Mode
                                     <Select
                                         style={{ width: '100%' }}
@@ -979,6 +1010,7 @@ const Uploader = () => {
                                 type=""
                                 className="bg-purple-400 rounded-lg w-[10rem] h-[2rem] text-white border-none"
                                 onClick={(event) => handleUpload(event)}
+                                ref={submitButtonRef}
                             >
                                 Get Vector Overlay
                             </button>
@@ -1015,7 +1047,7 @@ const Uploader = () => {
                     }
                 </div>
             }
-            <Tour open={isTourOpen} onClose={() => setisTourOpen(false)} steps={tourSteps} nextButtonProps={{type: "link"}} previousButtonProps={{type: "primary"}} />
+            <Tour open={isTourOpen} onClose={() => setisTourOpen(false)} steps={tourSteps} nextButtonProps={{ type: "link" }} previousButtonProps={{ type: "primary" }} />
         </>
     );
 };

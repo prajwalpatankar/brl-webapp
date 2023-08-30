@@ -15,7 +15,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="w-[20%] text-right pt-[0.5rem]">
-                    <a href="https://dornsife.usc.edu/" target="_blank" rel="noreferrer"><img src="./assets/Donsife.jpg" alt="Dornsife_logo" /></a>
+                    <a href="https://dornsife.usc.edu/" target="_blank" rel="noreferrer"><img src="./assets/Donsife.jpg" alt="Dornsife_logo" className='h-[4.8rem]' /></a>
                 </div>
             </div>
         </div>
