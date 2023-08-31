@@ -81,7 +81,7 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
                data_input_fci = data_input_fci + data_f1_raw[ forcePlateList[i] +'_Fz']
 
           #  Call FindContactIntervals
-          ci_f1 = FindContactIntervals(data_input_fci,samp,thresh=16)     
+          ci_f1 = FindContactIntervals(data_input_fci,samp,thresh=50)     
           
           # plate_area = findplate(file1_video ,framestart=0, label = 'Insert image here')
           # Below code replaces the need to call findplate()
@@ -111,22 +111,22 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
 
           # Get Body Weight Per Meter
           bwpermeter = float(serializer.data.get('bodyWeightPerMeter'))
+          body_weight = float(serializer.data.get('bodyWeight'))
 
           mode = serializer.data.get('mode')
 
-          mag2pix = bw2pix(pix2m['x'], bw, bwpermeter=bwpermeter)
-
-          # flip = {0: [],
-          #           1: []}
+          mag2pix = bw2pix(pix2m['x'], bw=body_weight, bwpermeter=bwpermeter)
 
           # calculate data_f1 to pass to convertdata
           data_f1 = {}
           for i in range(number_of_force_plates):
                data_f1[i] = data_f1_raw.filter(regex = forcePlateList[i]).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:]
-          
+
           transform_data = convertdata(data_f1, mag2pix, pix2m, view='fy', mode=mode, platelocs=plate_area, flip=flipList)
 
           transform_data.data2pix()
+
+          print("Transform data", transform_data.data_fp)
 
           data_pix_f1 = transform_data.data_fp
 
