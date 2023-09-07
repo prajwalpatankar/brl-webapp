@@ -17,6 +17,7 @@ import LogIn from './components/auth/LogIn';
 import SignUp from './components/auth/SignUp';
 import VectorOverlay from './components/vectorOverlay/VectorOverlay';
 import ForgotPassword from './components/auth/ForgotPassword';
+import Tutorial from './components/vectorOverlay/Tutorial';
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
                 <Route exact path="/login" element={<LogIn />} />
                 <Route exact path="/signup" element={<SignUp />} />
                 <Route exact path="/forgotPassword" element={<ForgotPassword />} />
+                <Route exact path="/vectorOverlayTutorial" element={<Tutorial />} />
               </Routes>
             </div>
           </BrowserRouter>

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { UserContext } from '../../contexts/UserContext';
 import axios from 'axios';
 // import { InboxOutlined } from "@ant-design/icons";
-import { Input, Button, Spin, Modal, message, Select, Tour } from "antd";
+import { Input, Button, Spin, Modal, message, Select } from "antd";
 import { useNavigate } from 'react-router-dom';
 import { Row, Col } from "react-bootstrap";
 
@@ -101,9 +101,6 @@ const Uploader = () => {
         contactFrame: "",
     });
 
-    //state to display tour
-    const [isTourOpen, setisTourOpen] = useState(false);
-
     //flip dropdown options
     const flipOptions =
         [
@@ -138,56 +135,6 @@ const Uploader = () => {
             },
         ]
 
-    // steps for tour
-    const tourSteps = [
-        {
-            title: 'Upload Video',
-            description: 'Upload your recorded video here',
-            cover: (
-                <img
-                    alt="tour.png"
-                    src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
-                />
-            ),
-            target: () => inputFileRef1.current,
-        },
-        {
-            title: 'Upload Force File',
-            description: 'Upload your pre-processed Force file',
-            cover: (
-                <img
-                    alt="tour.png"
-                    src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
-                />
-            ),
-            target: () => inputFileRef2.current,
-        },
-        {
-            title: 'Input Details',
-            description: 'Add Details About your vector overlay',
-            target: () => firsRowRef.current,
-        },
-        {
-            title: 'Select Flips',
-            description: 'Select any number of flips you want for your vector overlay',
-            target: () => flipRef.current,
-        },
-        {
-            title: 'Add more force plate details',
-            description: 'Click this button to add names of more force plates',
-            target: () => addButtonRef.current,
-        },
-        {
-            title: 'Select Mode',
-            description: 'Select if you want a combined or an individual vector overlay',
-            target: () => modeRef.current,
-        },
-        {
-            title: 'Submit!',
-            description: 'Finally, click this button to submit your request. If all details are correct, you will be able to download your vector overlay',
-            target: () => submitButtonRef.current,
-        },
-    ]
 
     // --------------------------------------------------------------------
     // Initializers
@@ -760,6 +707,11 @@ const Uploader = () => {
         a.remove();
     }
 
+    //Tour
+    const redirectToTour = () => {
+        navigate('/vectorOverlayTutorial');
+    }
+
     return (
         <>
             {showSpinner ? <Spin /> :
@@ -1016,7 +968,7 @@ const Uploader = () => {
                             </button>
                         </form>
                         <div className="flex justify-end">
-                            <button type="primary" className="border-none mx-1 bg-transparent text-purple-400" onClick={() => setisTourOpen(true)}>Need help?</button>
+                            <button type="primary" className="border-none mx-1 bg-transparent text-purple-400" onClick={redirectToTour}>Need help?</button>
                             <button type="primary" className="border-none mx-1 bg-transparent text-purple-400">How it works</button>
                         </div>
 
@@ -1047,7 +999,6 @@ const Uploader = () => {
                     }
                 </div>
             }
-            <Tour open={isTourOpen} onClose={() => setisTourOpen(false)} steps={tourSteps} nextButtonProps={{ type: "link" }} previousButtonProps={{ type: "primary" }} />
         </>
     );
 };
