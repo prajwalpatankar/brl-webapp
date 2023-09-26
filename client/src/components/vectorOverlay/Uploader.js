@@ -63,6 +63,7 @@ const Uploader = () => {
         widthOfPlate: "",
         contactFrame: "",
         forceThreshold: "",
+        view: "",
         endPointsX: [],
         endPointsY: [],
     });
@@ -101,6 +102,7 @@ const Uploader = () => {
         widthOfPlate: "",
         contactFrame: "",
         forceThreshold: "",
+        view: "",
     });
 
     //flip dropdown options
@@ -134,6 +136,19 @@ const Uploader = () => {
             {
                 value: 'ind',
                 label: 'Individual',
+            },
+        ]
+
+    // view dropdown options
+    const viewOptions =
+        [
+            {
+                value: 'fx',
+                label: 'fx',
+            },
+            {
+                value: 'fy',
+                label: 'fy',
             },
         ]
 
@@ -455,6 +470,11 @@ const Uploader = () => {
         setRequestData({ ...requestData, mode: value });
     }
 
+    // Handel Vector overlay view change
+    const handleViewChange = (value) => {
+        setRequestData({ ...requestData, view: value });
+    }
+
 
     // Handle form data change for Force Plates
     const handleFormChangeForcePlate = (event, index) => {
@@ -496,6 +516,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
             message.error("Please upload a video file")
         } else if (requestData.textFile.length === 0) {
@@ -511,6 +532,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
             message.error("Please upload a force file")
         } else if (requestData.samplingRate === "" || requestData.samplingRate <= 0) {
@@ -526,6 +548,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.mode === "") {
             setValidator({
@@ -540,6 +563,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.bodyWeight === "" || requestData.bodyWeight <= 0) {
             setValidator({
@@ -554,6 +578,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.bodyWeightPerMeter === "" || requestData.bodyWeightPerMeter <= 0) {
             setValidator({
@@ -568,6 +593,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.contactFrame === "" || requestData.contactFrame <= 0) {
             setValidator({
@@ -582,6 +608,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "error",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.lengthOfPlate === "" || requestData.lengthOfPlate <= 0) {
             setValidator({
@@ -596,6 +623,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.widthOfPlate === "" || requestData.widthOfPlate <= 0) {
             setValidator({
@@ -610,21 +638,38 @@ const Uploader = () => {
                 widthOfPlate: "error",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
         } else if (requestData.forceThreshold === "" || requestData.forceThreshold <= 0) {
-                setValidator({
-                    videoFile: "",
-                    textFile: "",
-                    samplingRate: "",
-                    mode: "",
-                    bodyWeight: "",
-                    bodyWeightPerMeter: "",
-                    forcePlateNames: "",
-                    lengthOfPlate: "",
-                    widthOfPlate: "",
-                    contactFrame: "",
-                    forceThreshold: "error",
-                });
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                mode: "",
+                bodyWeight: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+                forceThreshold: "error",
+                view: "",
+            });
+        } else if (requestData.view === "") {
+            setValidator({
+                videoFile: "",
+                textFile: "",
+                samplingRate: "",
+                mode: "",
+                bodyWeight: "",
+                bodyWeightPerMeter: "",
+                forcePlateNames: "",
+                lengthOfPlate: "",
+                widthOfPlate: "",
+                contactFrame: "",
+                forceThreshold: "",
+                view: "error",
+            });
         } else if (requestData.forcePlateNames.length !== endPointsX.length / 4) {
             message.error("Invalid number of Force Plates")
             message.info(`Please enter names of ${endPointsX.length / 4} plate(s) as ${endPointsX.length} end points have been selected`)
@@ -648,6 +693,7 @@ const Uploader = () => {
                 widthOfPlate: "",
                 contactFrame: "",
                 forceThreshold: "",
+                view: "",
             });
             axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData, {
                 headers: {
@@ -677,6 +723,7 @@ const Uploader = () => {
                     //     lengthOfPlate: "",
                     //     widthOfPlate: "",
                     //     contactFrame: "",
+                    //     view: "",
                     //     forceThreshold: "",
                     //     endPointsX: [],
                     //     endPointsY: [],
@@ -828,7 +875,7 @@ const Uploader = () => {
                             <br />
                             {/* Other required data */}
                             <Row ref={firsRowRef}>
-                                <Col md={3}>
+                                <Col md={4}>
                                     Sampling Rate
                                     <Input
                                         type="number"
@@ -841,8 +888,34 @@ const Uploader = () => {
                                         step={1}
                                     />
                                 </Col>
-
-                                <Col md={3}>
+                                <Col md={4}>
+                                    Contact Frame
+                                    <Input
+                                        type="number"
+                                        placeholder="Contact Frame"
+                                        name="contactFrame"
+                                        value={requestData.contactFrame}
+                                        onChange={event => handleFormChangeNotNegativeIntegers(event)}
+                                        status={validator.contactFrame}
+                                        min={1}
+                                        step={1}
+                                    />
+                                </Col>
+                                <Col md={4} >
+                                    View
+                                    <Select
+                                        style={{ width: '100%' }}
+                                        placeholder={"Select Vector Overlay View"}
+                                        options={viewOptions}
+                                        onChange={handleViewChange}
+                                        status={validator.view}
+                                    />
+                                </Col>
+                            </Row>
+                            <br />
+                            <br />
+                            <Row>
+                                <Col md={4}>
                                     Body Weight
                                     <Input
                                         type="number"
@@ -855,7 +928,7 @@ const Uploader = () => {
                                         step={1}
                                     />
                                 </Col>
-                                <Col md={3}>
+                                <Col md={4}>
                                     Body Weight per meter (kg/m)
                                     <Input
                                         type="number"
@@ -868,17 +941,17 @@ const Uploader = () => {
                                         step={1}
                                     />
                                 </Col>
-                                <Col md={3}>
-                                    Contact Frame
+                                <Col md={4}>
+                                    Force Threshold
                                     <Input
+                                        placeholder="N"
                                         type="number"
-                                        placeholder="Contact Frame"
-                                        name="contactFrame"
-                                        value={requestData.contactFrame}
-                                        onChange={event => handleFormChangeNotNegativeIntegers(event)}
-                                        status={validator.contactFrame}
-                                        min={1}
-                                        step={1}
+                                        name="forceThreshold"
+                                        value={requestData.forceThreshold}
+                                        onChange={event => handleFormChangeNotNegativeFloat(event)}
+                                        status={validator.forceThreshold}
+                                        min={0}
+                                        step={0.1}
                                     />
                                 </Col>
                             </Row>
@@ -917,7 +990,7 @@ const Uploader = () => {
                                         <Col xs={1}>
                                             <button
                                                 type="button"
-                                                className="w-[2rem] h-[2rem] border-2 border-gray-400 text-gray-400 rounded-lg"
+                                                className="w-[2rem] h-[2rem] border-2 border-purple-400 text-purple-400 rounded-lg"
                                                 onClick={addForcePlate}
                                                 ref={addButtonRef}
                                             >
@@ -945,7 +1018,7 @@ const Uploader = () => {
                             ))}
                             {/* Dimesion Data */}
                             <Row>
-                                <Col md={3}>
+                                <Col md={4}>
                                     Length of Plate
                                     <Input
                                         placeholder="Length of Plate"
@@ -958,7 +1031,7 @@ const Uploader = () => {
                                         step={0.1}
                                     />
                                 </Col>
-                                <Col md={3}>
+                                <Col md={4}>
                                     Width of Plate
                                     <Input
                                         placeholder="Width of Plate"
@@ -971,20 +1044,7 @@ const Uploader = () => {
                                         step={0.1}
                                     />
                                 </Col>
-                                <Col md={3}>
-                                    Force Threshold
-                                    <Input
-                                        placeholder="N"
-                                        type="number"
-                                        name="forceThreshold"
-                                        value={requestData.forceThreshold}
-                                        onChange={event => handleFormChangeNotNegativeFloat(event)}
-                                        status={validator.forceThreshold}
-                                        min={0}
-                                        step={0.1}
-                                    />
-                                </Col>
-                                <Col md={3} ref={modeRef}>
+                                <Col md={4} ref={modeRef}>
                                     Mode
                                     <Select
                                         style={{ width: '100%' }}

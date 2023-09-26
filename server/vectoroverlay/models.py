@@ -13,6 +13,7 @@ class UploadedData(models.Model):
     samplingRate = models.DecimalField(max_digits=5, decimal_places=2)
     contactFrame = models.IntegerField(default=100)
     forceThreshold = models.IntegerField(default=50) 
+    view = models.CharField(max_length=4, default='fy')
     mode = models.CharField(max_length=10, default='combine')
     userID = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
 

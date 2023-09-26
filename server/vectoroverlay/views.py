@@ -81,9 +81,7 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
                data_input_fci = data_input_fci + data_f1_raw[ forcePlateList[i] +'_Fz']
 
           # Get Force threshold
-          force_thresh = serializer.data.get('forceThreshold')
-          print("Force Threshold: ", force_thresh)          
-          force_thresh = 50
+          force_thresh = int(float(serializer.data.get('forceThreshold')))
 
           #  Call FindContactIntervals
           ci_f1 = FindContactIntervals(data_input_fci,samp,thresh=force_thresh)     
@@ -127,7 +125,11 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
           for i in range(number_of_force_plates):
                data_f1[i] = data_f1_raw.filter(regex = forcePlateList[i]).iloc[ci_f1['Start'][0]:ci_f1['End'][0],:]
 
-          transform_data = convertdata(data_f1, mag2pix, pix2m, view='fy', mode=mode, platelocs=plate_area, flip=flipList)
+          # Get 'view' parameter 
+          view = serializer.data.get('view')
+
+          # Conver Data
+          transform_data = convertdata(data_f1, mag2pix, pix2m, view=view, mode=mode, platelocs=plate_area, flip=flipList)
 
           transform_data.data2pix()
 
