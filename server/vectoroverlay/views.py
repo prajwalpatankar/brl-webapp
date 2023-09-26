@@ -80,8 +80,13 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
                #    data_input_fci = data_input_fci + data_f1_raw[ forcePlateList[i] + ' 9286BA_Fz' ]
                data_input_fci = data_input_fci + data_f1_raw[ forcePlateList[i] +'_Fz']
 
+          # Get Force threshold
+          force_thresh = serializer.data.get('forceThreshold')
+          print("Force Threshold: ", force_thresh)          
+          force_thresh = 50
+
           #  Call FindContactIntervals
-          ci_f1 = FindContactIntervals(data_input_fci,samp,thresh=50)     
+          ci_f1 = FindContactIntervals(data_input_fci,samp,thresh=force_thresh)     
           
           # plate_area = findplate(file1_video ,framestart=0, label = 'Insert image here')
           # Below code replaces the need to call findplate()
@@ -125,8 +130,6 @@ class DataUploader_Viweset(viewsets.ModelViewSet):
           transform_data = convertdata(data_f1, mag2pix, pix2m, view='fy', mode=mode, platelocs=plate_area, flip=flipList)
 
           transform_data.data2pix()
-
-          print("Transform data", transform_data.data_fp)
 
           data_pix_f1 = transform_data.data_fp
 

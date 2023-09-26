@@ -62,6 +62,7 @@ const Uploader = () => {
         lengthOfPlate: "",
         widthOfPlate: "",
         contactFrame: "",
+        forceThreshold: "",
         endPointsX: [],
         endPointsY: [],
     });
@@ -99,6 +100,7 @@ const Uploader = () => {
         lengthOfPlate: "",
         widthOfPlate: "",
         contactFrame: "",
+        forceThreshold: "",
     });
 
     //flip dropdown options
@@ -493,6 +495,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
             message.error("Please upload a video file")
         } else if (requestData.textFile.length === 0) {
@@ -507,6 +510,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
             message.error("Please upload a force file")
         } else if (requestData.samplingRate === "" || requestData.samplingRate <= 0) {
@@ -521,6 +525,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
         } else if (requestData.mode === "") {
             setValidator({
@@ -534,6 +539,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
         } else if (requestData.bodyWeight === "" || requestData.bodyWeight <= 0) {
             setValidator({
@@ -547,6 +553,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
         } else if (requestData.bodyWeightPerMeter === "" || requestData.bodyWeightPerMeter <= 0) {
             setValidator({
@@ -560,6 +567,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
         } else if (requestData.contactFrame === "" || requestData.contactFrame <= 0) {
             setValidator({
@@ -573,6 +581,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "error",
+                forceThreshold: "",
             });
         } else if (requestData.lengthOfPlate === "" || requestData.lengthOfPlate <= 0) {
             setValidator({
@@ -586,6 +595,7 @@ const Uploader = () => {
                 lengthOfPlate: "error",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
         } else if (requestData.widthOfPlate === "" || requestData.widthOfPlate <= 0) {
             setValidator({
@@ -599,7 +609,22 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "error",
                 contactFrame: "",
+                forceThreshold: "",
             });
+        } else if (requestData.forceThreshold === "" || requestData.forceThreshold <= 0) {
+                setValidator({
+                    videoFile: "",
+                    textFile: "",
+                    samplingRate: "",
+                    mode: "",
+                    bodyWeight: "",
+                    bodyWeightPerMeter: "",
+                    forcePlateNames: "",
+                    lengthOfPlate: "",
+                    widthOfPlate: "",
+                    contactFrame: "",
+                    forceThreshold: "error",
+                });
         } else if (requestData.forcePlateNames.length !== endPointsX.length / 4) {
             message.error("Invalid number of Force Plates")
             message.info(`Please enter names of ${endPointsX.length / 4} plate(s) as ${endPointsX.length} end points have been selected`)
@@ -622,6 +647,7 @@ const Uploader = () => {
                 lengthOfPlate: "",
                 widthOfPlate: "",
                 contactFrame: "",
+                forceThreshold: "",
             });
             axios.post(process.env.REACT_APP_SERVER_URL.concat("api/v1/data_uploader/"), requestData, {
                 headers: {
@@ -651,6 +677,7 @@ const Uploader = () => {
                     //     lengthOfPlate: "",
                     //     widthOfPlate: "",
                     //     contactFrame: "",
+                    //     forceThreshold: "",
                     //     endPointsX: [],
                     //     endPointsY: [],
                     // })
@@ -944,7 +971,20 @@ const Uploader = () => {
                                         step={0.1}
                                     />
                                 </Col>
-                                <Col md={6} ref={modeRef}>
+                                <Col md={3}>
+                                    Force Threshold
+                                    <Input
+                                        placeholder="N"
+                                        type="number"
+                                        name="forceThreshold"
+                                        value={requestData.forceThreshold}
+                                        onChange={event => handleFormChangeNotNegativeFloat(event)}
+                                        status={validator.forceThreshold}
+                                        min={0}
+                                        step={0.1}
+                                    />
+                                </Col>
+                                <Col md={3} ref={modeRef}>
                                     Mode
                                     <Select
                                         style={{ width: '100%' }}
